@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  oceanblock:
+    image: itzg/minecraft-server:java8-multiarch
+    container_name: oceanblock
+    user: 1600:1600
+    restart: always
+    ports:
+      - 25565:25565
+    environment:
+      - TYPE=FTBA
+      - FTB_MODPACK_ID=91
+      - EULA=true
+      - INIT_MEMORY=1G
+      - MAX_MEMORY=8G
+      - ENABLE_ROLLING_LOGS=true
+    volumes:
+      - /storage/games/minecraft/oceanblock:/data

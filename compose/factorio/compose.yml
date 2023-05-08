@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  factorio:
+    container_name: factorio
+    image: factoriotools/factorio:stable
+    ports:
+      - "34197:34197/udp"
+    volumes:
+      - $FACTORIO_PATH:/factorio
+      - $FACTORIO_CONFIG_PATH:/factorio/config
+    environment:
+      INSTANCE_NAME: $FACTORIO_INSTANCE_NAME
+      INSTANCE_DESC: $FACTORIO_INSTANCE_DESCRIPTION
+      SAVE_NAME: $FACTORIO_SAVE_NAME
+      LOAD_LATEST_SAVE: false
+      

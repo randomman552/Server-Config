@@ -1,0 +1,317 @@
+version: '3'
+services:
+  # Dynamic DNS for freedns.afraid.org
+  ddclient-freedns:
+    image: linuxserver/ddclient:latest
+    container_name: ddclient-freedns
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ${CORE_HOME}/ddclient/freedns:/config
+
+  # Dynamic DNS for cloudflare
+  ddclient-cloudflare:
+    image: linuxserver/ddclient:latest
+    container_name: ddclient-cloudflare
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ${CORE_HOME}/ddclient/cloudflare:/config
+
+
+  # Watchtower auto updater
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    hostname: linux-server
+    restart: unless-stopped
+    environment:
+      TZ: Europe/London
+
+      WATCHTOWER_CLEANUP: true
+      WATCHTOWER_ROLLING_RESTART: true
+      WATCHTOWER_SCHEDULE: 0 0 4 * * *
+
+      WATCHTOWER_HTTP_API_TOKEN: $WATCHTOWER_API_TOKEN
+      WATCHTOWER_HTTP_API_METRICS: true
+
+      WATCHTOWER_WARN_ON_HEAD_FAILURE: never
+
+      WATCHTOWER_NOTIFICATIONS: email
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM: $WATCHTOWER_NOTIFICATION_EMAIL_FROM
+      WATCHTOWER_NOTIFICATION_EMAIL_TO: $WATCHTOWER_NOTIFICATION_EMAIL_TO
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER: $WATCHTOWER_NOTIFICATION_EMAIL_SERVER
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT: $WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PORT
+      WATCHTOWER_NOTIFICATION_EMAIL_DELAY: $WATCHTOWER_NOTIFICATION_EMAIL_DELAY
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER: $WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD: $WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+  # Traefik proxy to handle all container traffic
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    network_mode: host
+    restart: always
+    command:
+      # Add docker as a provider
+      - --providers.docker.watch=true
+      - --providers.docker.exposedbydefault=false
+      # Enable API dashboard
+      - --api.dashboard=true
+      # Certificate Resolver
+      - --certificatesresolvers.letsencrypt.acme.email=$CLOUDFLARE_EMAIL
+      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      # HTTP entrypoint just re-directs to https
+      - --entrypoints.http.address=:80
+      - --entrypoints.http.http.redirections.entrypoint.to=https
+      - --entrypoints.http.http.redirections.entrypoint.scheme=https
+      # HTTPS entrypoint
+      - --entrypoints.https.address=:443
+      - --entrypoints.https.http.tls=true
+      - --entrypoints.https.http.tls.certResolver=letsencrypt
+      - --entrypoints.https.http.tls.domains[0].main=$CLOUDFLARE_DOMAIN
+      - --entrypoints.https.http.tls.domains[0].sans=*.$CLOUDFLARE_DOMAIN
+    environment:
+      CLOUDFLARE_EMAIL: $CLOUDFLARE_EMAIL
+      CLOUDFLARE_DNS_API_TOKEN: $CLOUDFLARE_DNS_API_TOKEN
+    volumes:
+      - ${CORE_HOME}/traefik/etc/traefik:/etc/traefik
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      traefik.enable: true
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
+      traefik.http.routers.traefik.rule: Host(`${TRAEFIK_HOST}`)
+      traefik.http.routers.traefik.entrypoints: https
+      traefik.http.routers.traefik.service: api@internal
+      traefik.http.routers.traefik.middlewares: local-whitelist@docker
+      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+      homepage.group: $HOMEPAGE_GROUP
+      homepage.name: Traefik
+      homepage.icon: traefik
+      homepage.href: https://$TRAEFIK_HOST
+      homepage.description: Traefik proxy dashboard
+      homepage.widget.type: traefik
+      homepage.widget.url: https://$TRAEFIK_HOST
+
+
+  # Pi-Hole for local DNS resolution
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    environment:
+      VIRTUAL_HOST: $PIHOLE_HOST
+    ports:
+      - 192.168.0.100:53:53/tcp
+      - 192.168.0.100:53:53/udp
+    volumes:
+      - ${CORE_HOME}/pihole/pihole:/etc/pihole
+      - ${CORE_HOME}/pihole/dnsmasq.d:/etc/dnsmasq.d
+    depends_on:
+      - traefik
+    restart: always
+    labels:
+      traefik.enable: true
+      traefik.http.services.pihole.loadbalancer.server.port: 80
+      traefik.http.routers.pihole.rule: Host(`$PIHOLE_HOST`)
+      traefik.http.routers.pihole.entrypoints: https
+      traefik.http.routers.pihole.middlewares: local-whitelist@docker
+      homepage.group: $HOMEPAGE_GROUP
+      homepage.name: Pihole
+      homepage.icon: pihole
+      homepage.href: https://$PIHOLE_HOST
+      homepage.description: Local DNS resolver service
+      homepage.widget.type: pihole
+      homepage.widget.url: https://$PIHOLE_HOST
+
+
+  # Wireguard for external access
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      TZ: $TZ
+      SERVERURL: $WIREGUARD_SERVER_URL
+      SERVERPORT: $WIREGUARD_SERVER_PORT
+      PEERS: $WIREGUARD_PEERS
+    volumes:
+      - ${CORE_HOME}/wireguard/config:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+
+
+  # Portainer for docker container management
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${CORE_HOME}/portainer/data:/data
+    depends_on:
+      - traefik
+    labels:
+      traefik.enable: true
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
+      traefik.http.routers.portainer.rule: Host(`$PORTAINER_HOST`)
+      traefik.http.routers.portainer.entrypoints: https
+      traefik.http.routers.portainer.middlewares: local-whitelist@docker
+      homepage.group: $HOMEPAGE_GROUP
+      homepage.name: Portainer
+      homepage.icon: portainer
+      homepage.href: https://$PORTAINER_HOST
+      homepage.description: Remote web-based container management system
+      homepage.widget.type: portainer
+      homepage.widget.url: https://$PORTAINER_HOST
+      homepage.widget.env: $HOMEPAGE_PORTAINER_ENV
+      homepage.widget.key: $HOMEPAGE_PORTAINER_KEY
+
+
+  # Authentik database and cache
+  authentik-postgres:
+    image: docker.io/library/postgres:12-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - ${CORE_HOME}/authentik/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${AUTHENTIK_PG_PASS:?database password required}
+      - POSTGRES_USER=${AUTHENTIK_PG_USER:-authentik}
+      - POSTGRES_DB=${AUTHENTIK_PG_DB:-authentik}
+  
+  authentik-redis:
+    image: docker.io/library/redis:alpine
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - ${CORE_HOME}/authentik/redis:/data
+  
+  # Authentik server and worker
+  authentik-server:
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2022.12.0}
+    restart: unless-stopped
+    command: server
+    depends_on:
+      - authentik-postgres
+      - authentik-redis
+      - traefik
+    ports:
+      - 9000:9000
+    environment:
+      AUTHENTIK_ERROR_REPORTING__ENABLED: true
+      AUTHENTIK_SECRET_KEY: $AUTHENTIK_SECRET_KEY
+      AUTHENTIK_COOKIE_DOMAIN: $AUTHENTIK_COOKIE_DOMAIN
+      # Connection settings
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgres
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
+      # Email settings
+      AUTHENTIK_EMAIL__HOST: $AUTHENTIK_EMAIL__HOST
+      AUTHENTIK_EMAIL__PORT: $AUTHENTIK_EMAIL__PORT
+      AUTHENTIK_EMAIL__USERNAME: $AUTHENTIK_EMAIL__USERNAME
+      AUTHENTIK_EMAIL__PASSWORD: $AUTHENTIK_EMAIL__PASSWORD
+      AUTHENTIK_EMAIL__FROM: $AUTHENTIK_EMAIL__FROM
+      AUTHENTIK_EMAIL__USE_TLS: true
+    volumes:
+      - ${CORE_HOME}/authentik/media:/media
+      - ${CORE_HOME}/authentik/custom-templates:/templates
+    labels:
+      traefik.enable: true
+      
+      # Normal server traffic
+      traefik.http.services.authentik.loadbalancer.server.port: 9000
+      traefik.http.routers.authentik.rule: Host(`$AUTHENTIK_HOST`)
+      traefik.http.routers.authentik.entrypoints: https
+      traefik.http.routers.authentik.service: authentik
+      
+      # Embedded proxy outpost
+      traefik.http.services.authentik-proxy-outpost.loadbalancer.server.port: 9000
+      traefik.http.routers.authentik-proxy-outpost.rule: HostRegexp(`{subdomain:[a-z0-9-]+}.$AUTHENTIK_COOKIE_DOMAIN`) && PathPrefix(`/outpost.goauthentik.io/`)
+      traefik.http.routers.authentik-proxy-outpost.entrypoints: https
+      traefik.http.routers.authentik-proxy-outpost.service: authentik-proxy-outpost
+      
+      # Middleware for forward auth
+      traefik.http.middlewares.authentik-forwardauth.forwardauth.address: http://$DOMAIN:9000/outpost.goauthentik.io/auth/traefik
+      traefik.http.middlewares.authentik-forwardauth.forwardauth.trustForwardHeader: true
+      traefik.http.middlewares.authentik-forwardauth.forwardauth.authResponseHeaders: X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version
+      
+      # Add to homepage
+      homepage.group: $HOMEPAGE_GROUP
+      homepage.name: Authentik
+      homepage.icon: authentik
+      homepage.description: Authentication provider
+      homepage.href: https://$AUTHENTIK_HOST
+      homepage.widget.type: authentik
+      homepage.widget.url: https://$AUTHENTIK_HOST
+      homepage.widget.key: $HOMEPAGE_AUTHENTIK_KEY
+
+  authentik-worker:
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2022.12.0}
+    restart: unless-stopped
+    command: worker
+    depends_on:
+      - authentik-postgres
+      - authentik-redis
+      - authentik-server
+    environment:
+      AUTHENTIK_ERROR_REPORTING__ENABLED: true
+      AUTHENTIK_SECRET_KEY: $AUTHENTIK_SECRET_KEY
+      AUTHENTIK_COOKIE_DOMAIN: $AUTHENTIK_COOKIE_DOMAIN
+      # Connection settings
+      AUTHENTIK_REDIS__HOST: authentik-redis
+      AUTHENTIK_POSTGRESQL__HOST: authentik-postgres
+      AUTHENTIK_POSTGRESQL__USER: ${AUTHENTIK_PG_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${AUTHENTIK_PG_DB:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${AUTHENTIK_PG_PASS}
+      # Email settings
+      AUTHENTIK_EMAIL__HOST: $AUTHENTIK_EMAIL__HOST
+      AUTHENTIK_EMAIL__PORT: $AUTHENTIK_EMAIL__PORT
+      AUTHENTIK_EMAIL__USERNAME: $AUTHENTIK_EMAIL__USERNAME
+      AUTHENTIK_EMAIL__PASSWORD: $AUTHENTIK_EMAIL__PASSWORD
+      AUTHENTIK_EMAIL__FROM: $AUTHENTIK_EMAIL__FROM
+      AUTHENTIK_EMAIL__USE_TLS: true
+    # `user: root` and the docker socket volume are optional.
+    # See more for the docker socket integration here:
+    # https://goauthentik.io/docs/outposts/integrations/docker
+    # Removing `user: root` also prevents the worker from fixing the permissions
+    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
+    # (1000:1000 by default)
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${CORE_HOME}/authentik/media:/media
+      - ${CORE_HOME}/authentik/certs:/certs
+      - ${CORE_HOME}/authentik/custom-templates:/templates

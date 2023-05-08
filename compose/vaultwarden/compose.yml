@@ -1,0 +1,41 @@
+version: '3'
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      WEBSOCKET_ENABLED: true  # WebSocket notifications.
+      SIGNUPS_ALLOWED: false
+      DOMAIN: https://$VAULTWARDEN_HOST
+      ADMIN_TOKEN: $ADMIN_TOKEN
+      SMTP_HOST: $SMTP_HOST
+      SMTP_FROM: $SMTP_FROM
+      SMTP_USERNAME: $SMTP_USERNAME
+      SMTP_PASSWORD: $SMTP_PASSWORD
+      SMTP_PORT: 587
+      SMTP_SECURITY: starttls
+    volumes:
+      - $VAULTWARDEN_HOME/data:/data
+    labels:
+      traefik.enable: true
+      # Middleware
+      traefik.http.middlewares.vaultwarden-security.headers.customresponseheaders.Strict-Transport-Security: max-age=31536000; includeSubDomains
+      # Web UI
+      traefik.http.services.vaultwarden-web.loadbalancer.server.port: 80
+      traefik.http.routers.vaultwarden-web.rule: Host(`$VAULTWARDEN_HOST`)
+      traefik.http.routers.vaultwarden-web.service: vaultwarden-web
+      traefik.http.routers.vaultwarden-web.entrypoints: https
+      traefik.http.routers.vaultwarden-web.middlewares: vaultwarden-security
+      # Notifications
+      traefik.http.services.vaultwarden-websocket.loadbalancer.server.port: 3012
+      traefik.http.routers.vaultwarden-websocket.rule: Host(`$VAULTWARDEN_HOST`) && Path(`/notifications/hub`)
+      traefik.http.routers.vaultwarden-websocket.service: vaultwarden-websocket
+      traefik.http.routers.vaultwarden-websocket.entrypoints: https
+      traefik.http.routers.vaultwarden-websocket.middlewares: vaultwarden-security
+      # Homepage link
+      homepage.group: Tools
+      homepage.name: Vaultwarden
+      homepage.icon: vaultwarden
+      homepage.description: Password manager
+      homepage.href: https://$VAULTWARDEN_HOST

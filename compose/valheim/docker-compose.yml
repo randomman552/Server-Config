@@ -1,0 +1,22 @@
+version: '3'
+services:
+  valheim:
+    image: mbround18/valheim
+    container_name: valheim
+    restart: always
+    environment:
+      PUBLIC: 0
+      AUTO_UPDATE: 1
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+      WORLD: $VALHEIM_WORLD
+      PASSWORD: $VALHEIM_PASSWORD
+      NAME: $VALHEIM_NAME
+    ports:
+      - 2456:2456/udp
+      - 2457:2457/udp
+      - 2458:2458/udp
+    volumes:
+      - ${VALHEIM_HOME}/saves:/home/steam/.config/unity3d/IronGate/Valheim
+      - ${VALHEIM_HOME}/server:/home/steam/valheim

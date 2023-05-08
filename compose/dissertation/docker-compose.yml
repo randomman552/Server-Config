@@ -1,0 +1,45 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:5
+    container_name: abacws-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGO_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
+    volumes:
+      - ${APP_HOME}/db:/data/db
+
+  api:
+    image: ghcr.io/randomman552/abacws-data-vis:api-latest
+    container_name: abacws-api
+    restart: unless-stopped
+    environment:
+      API_KEY: $API_KEY
+      MONGODB_URI: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongo
+    depends_on:
+      - mongo
+
+  visualiser:
+    image: ghcr.io/randomman552/abacws-data-vis:visualiser-latest
+    container_name: abacws-visualiser
+    restart: unless-stopped
+    depends_on:
+      - api
+    labels:
+      traefik.enable: true
+      traefik.http.services.abacws-visualiser.loadbalancer.server.port: 80
+      traefik.http.routers.abacws-visualiser.rule: Host(`$APP_HOST`)
+      traefik.http.routers.abacws-visualiser.entrypoints: https
+      traefik.http.routers.abacws-visualiser.tls: true
+
+  data-provider:
+    image: ghcr.io/randomman552/abacws-data-vis:dummy-data-provider
+    network_mode: none
+    container_name: abacws-data-provider
+    restart: unless-stopped
+    depends_on:
+      - api
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro

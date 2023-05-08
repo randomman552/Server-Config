@@ -1,0 +1,93 @@
+version: "3.5"
+services:
+  # MySQL database
+  db:
+    image: mysql:8.0
+    container_name: nextcloud-db
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: unless-stopped
+    volumes:
+      - ${NEXTCLOUD_HOME}/db:/var/lib/mysql
+
+  # Redis for memcache
+  redis:
+    image: redis:alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+  
+  # Nextcloud application
+  nextcloud:
+    image: randomman552/nextcloud-ffmpeg:stable-apache
+    container_name: nextcloud
+    volumes:
+      - ${NEXTCLOUD_HOME}/html:/var/www/html
+      - ${NEXTCLOUD_HOME}/data:/nextcloud-data
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    labels:
+      traefik.enable: true
+      # Middleware
+      traefik.http.middlewares.nextcloud-headers.headers.stsSeconds: 15552000
+      traefik.http.middlewares.nextcloud-headers.headers.stsPreload: true
+      traefik.http.middlewares.nextcloud-headers.headers.stsIncludeSubdomains: true
+      traefik.http.middlewares.nextcloud-webfinger.redirectregex.regex: https://(.*)/.well-known/(card|cal)dav
+      traefik.http.middlewares.nextcloud-webfinger.redirectregex.replacement: https://$${1}/remote.php/dav/
+      # Service
+      traefik.http.services.nextcloud.loadbalancer.server.port: 80
+      traefik.http.routers.nextcloud.rule: Host(`$NEXTCLOUD_HOST`)
+      traefik.http.routers.nextcloud.entrypoints: https
+      traefik.http.routers.nextcloud.middlewares: nextcloud-headers, nextcloud-webfinger
+      # Homepage
+      homepage.group: Tools
+      homepage.name: Nextcloud
+      homepage.icon: nextcloud
+      homepage.href: https://$NEXTCLOUD_HOST
+      homepage.description: Cloud storage and collaboration platform
+  
+  # Cron to execute periodic tasks on nextcloud
+  cron:
+    image: randomman552/nextcloud-ffmpeg:stable-apache
+    restart: unless-stopped
+    container_name: nextcloud-cron
+    entrypoint: /cron.sh
+    volumes:
+      - ${NEXTCLOUD_HOME}/html:/var/www/html
+      - ${NEXTCLOUD_HOME}/data:/nextcloud-data
+    depends_on:
+      - db
+      - redis
+  
+  # Collabora
+  collabora:
+    image: collabora/code
+    container_name: nextcloud-collabora
+    restart: unless-stopped
+    environment:
+      username: $COLLABORA_USERNAME
+      password: $COLLABORA_PASSWORD
+      server_name: $COLLABORA_HOST
+      domain: $NEXTCLOUD_HOST
+      dictionaries: en_GB
+      extra_params: --o:ssl.enable=false --o:ssl.termination=true
+    cap_add:
+      - MKNOD
+    labels:
+      traefik.enable: true
+      traefik.http.services.collabora.loadbalancer.server.port: 9980
+      traefik.http.routers.collabora.rule: Host(`$COLLABORA_HOST`)
+      traefik.http.routers.collabora.entrypoints: https
+
+  # Draw.io integration
+  drawio:
+    image: jgraph/drawio
+    container_name: nextcloud-drawio
+    restart: unless-stopped
+    environment:
+      - VIRTUAL_HOST=$DRAWIO_HOST
+    labels:
+      traefik.enable: true
+      traefik.http.services.drawio.loadbalancer.server.port: 8080
+      traefik.http.routers.drawio.rule: Host(`$DRAWIO_HOST`)
+      traefik.http.routers.drawio.entrypoints: https

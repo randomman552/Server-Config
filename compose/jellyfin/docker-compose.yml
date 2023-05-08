@@ -1,0 +1,44 @@
+version: "3"
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: ${JELLYFIN_UID:-1000}:${JELLYFIN_GID:-1000}
+    volumes:
+      - ${JELLYFIN_HOME}/config:/config
+      - ${JELLYFIN_HOME}/cache:/cache
+      - ${MEDIA_HOME}/data:/media
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    labels:
+      traefik.enable: true
+      # Middleware
+      traefik.http.middlewares.jellyfin-security.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex
+      traefik.http.middlewares.jellyfin-security.headers.SSLRedirect: true
+      traefik.http.middlewares.jellyfin-security.headers.STSSeconds: 315360000
+      traefik.http.middlewares.jellyfin-security.headers.STSIncludeSubdomains: true
+      traefik.http.middlewares.jellyfin-security.headers.STSPreload: true
+      traefik.http.middlewares.jellyfin-security.headers.frameDeny: true
+      traefik.http.middlewares.jellyfin-security.headers.contentTypeNosniff: true
+      traefik.http.middlewares.jellyfin-security.headers.browserXSSFilter: true
+      traefik.http.middlewares.jellyfin-security.headers.customFrameOptionsValue: allow-from https://$JELLYFIN_HOST
+      # HTTP Service
+      traefik.http.services.jellyfin.loadbalancer.server.port: 8096
+      traefik.http.routers.jellyfin.rule: Host(`${JELLYFIN_HOST}`)
+      traefik.http.routers.jellyfin.entrypoints: https
+      traefik.http.routers.jellyfin.middlewares: jellyfin-security
+      # Homepage link
+      homepage.group: Streaming
+      homepage.name: Jellyfin
+      homepage.icon: jellyfin
+      homepage.description: Self-hosted media system
+      homepage.href: https://$JELLYFIN_HOST
+      homepage.widget.type: jellyfin
+      homepage.widget.url: https://$JELLYFIN_HOST
+      homepage.widget.key: $HOMEPAGE_API_KEY

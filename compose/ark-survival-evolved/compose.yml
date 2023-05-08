@@ -1,0 +1,23 @@
+version: '3'
+services:
+  ark:
+    image: hermsi/ark-server
+    container_name: ark
+    restart: unless-stopped
+    tty: true
+    environment:
+      UPDATE_ON_START: true
+      ENABLE_CROSSPLAY: true
+      SESSION_NAME: $SESSION_NAME
+      SERVER_MAP: $SERVER_MAP
+      SERVER_PASSWORD: $SERVER_PASSWORD
+      ADMIN_PASSWORD: $ADMIN_PASSWORD
+      GAME_MOD_IDS: $GAME_MOD_IDS
+    volumes:
+      - ${ARK_HOME}/app:/app
+    ports:
+      - 7777:7777/udp
+      - 7778:7778/udp
+      - 27020:27020/tcp
+      - 27015:27015/udp
+    

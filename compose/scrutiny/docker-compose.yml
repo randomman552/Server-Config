@@ -1,0 +1,25 @@
+version: "3"
+services:
+  scrutiny:
+    image: ghcr.io/analogj/scrutiny:latest
+    container_name: scrutiny
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - /storage/management/scrutiny/config:/opt/scrutiny/config
+      - /storage/management/scrutiny/influxdb:/opt/scrutiny/influxdb
+      - /run/udev:/run/udev:ro
+    labels:
+      traefik.enable: true
+      traefik.http.services.scrutiny.loadbalancer.server.port: 8080
+      traefik.http.routers.scrutiny.rule: Host(`${SCRUTINY_HOST}`)
+      traefik.http.routers.scrutiny.entrypoints: https
+      traefik.http.routers.scrutiny.middlewares: local-whitelist
+      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+      homepage.group: Monitoring
+      homepage.name: Scrutiny
+      homepage.icon: scrutiny
+      homepage.href: https://${SCRUTINY_HOST}
+      homepage.description: Remote S.M.A.R.T monitoring software
+      homepage.widget.type: scrutiny
+      homepage.widget.url: https://${SCRUTINY_HOST}

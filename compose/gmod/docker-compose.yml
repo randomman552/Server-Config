@@ -1,0 +1,18 @@
+version: '3'
+services:
+  garrysmod:
+    image: randomman552/gmod
+    container_name: gmod
+    tty: true
+    restart: unless-stopped
+    environment:
+      - PUID=${GMOD_UID:-1600}
+      - PGID=${GMOD_PID:-1600}
+      - GAME_MODE=${GAME_MODE:-sandbox}
+      - MAP=${MAP:-gm_construct}
+      - WORKSHOP_COLLECTION=${WORKSHOP_COLLECTION}
+    ports:
+      - 27015:27015
+      - 27015:27015/udp
+    volumes:
+      - ${GMOD_HOME:-/pool/games/gmod}/server:/server
