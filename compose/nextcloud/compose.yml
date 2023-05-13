@@ -1,4 +1,4 @@
-version: "3.5"
+version: "3"
 services:
   # MySQL database
   db:
@@ -6,8 +6,35 @@ services:
     container_name: nextcloud-db
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: unless-stopped
+    environment:
+      MYSQL_USER: $DATABASE_USER
+      MYSQL_PASSWORD: $DATABASE_PASSWORD
+      MYSQL_DATABASE: $DATABASE_SCHEMA
+      MYSQL_ROOT_PASSWORD: $DATABASE_ROOT_PASSWORD
     volumes:
       - ${NEXTCLOUD_HOME}/db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', '$$MYSQL_USER', '--password=$$MYSQL_PASSWORD' ]
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
+
+  # Database backup
+  db-backup:
+    image: databack/mysql-backup
+    container_name: nextcloud-db-backup
+    restart: unless-stopped
+    volumes:
+      - ${NEXTCLOUD_HOME}/backup:/backup
+    depends_on:
+      - db
+    environment:
+      DB_SERVER: db
+      DB_USER: root
+      DB_PASS: $DATABASE_ROOT_PASSWORD
+      DB_NAMES: $DATABASE_SCHEMA
+      DB_DUMP_CRON: "0 0 * * *"
 
   # Redis for memcache
   redis:
@@ -19,10 +46,16 @@ services:
   nextcloud:
     image: randomman552/nextcloud-ffmpeg:stable-apache
     container_name: nextcloud
+    restart: unless-stopped
     volumes:
       - ${NEXTCLOUD_HOME}/html:/var/www/html
       - ${NEXTCLOUD_HOME}/data:/nextcloud-data
-    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: $DATABASE_SCHEMA
+      MYSQL_USER: $DATABASE_USER
+      MYSQL_PASSWORD: $DATABASE_PASSWORD
+      MYSQL_HOST: db
+      REDIS_HOST: redis
     depends_on:
       - db
       - redis
