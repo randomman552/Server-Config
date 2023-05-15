@@ -1,0 +1,18 @@
+version: '3'
+services:
+  multiverse:
+    image: itzg/minecraft-server:java17-alpine
+    container_name: minecraft-handyside
+    restart: unless-stopped
+    user: 1600:1600
+    ports:
+      - 25565:25565
+    environment:
+      EULA: true
+      TYPE: paper
+      INIT_MEMORY: 1G
+      MAX_MEMORY: 8G
+      ENABLE_ROLLING_LOGS: true
+      VERSION: 1.19.4
+    volumes:
+      - /pool/games/minecraft/handyside:/data
