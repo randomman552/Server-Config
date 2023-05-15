@@ -41,6 +41,12 @@ services:
     image: redis:alpine
     container_name: nextcloud-redis
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
   
   # Nextcloud application
   nextcloud:
