@@ -1,0 +1,24 @@
+version: '3'
+services:
+  # Dynamic DNS for freedns.afraid.org
+  freedns:
+    image: linuxserver/ddclient:latest
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ${DYNAMIC_DNS_HOME}/freedns:/config
+
+  # Dynamic DNS for cloudflare
+  cloudflare:
+    image: linuxserver/ddclient:latest
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+    volumes:
+      - ${DYNAMIC_DNS_HOME}/cloudflare:/config
+
