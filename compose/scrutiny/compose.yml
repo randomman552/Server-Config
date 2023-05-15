@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
     privileged: true
     volumes:
-      - /storage/management/scrutiny/config:/opt/scrutiny/config
-      - /storage/management/scrutiny/influxdb:/opt/scrutiny/influxdb
+      - ${SCRUTINY_HOME}/config:/opt/scrutiny/config
+      - ${SCRUTINY_HOME}/influxdb:/opt/scrutiny/influxdb
       - /run/udev:/run/udev:ro
     labels:
       traefik.enable: true

@@ -1,30 +1,5 @@
 version: '3'
 services:
-  # Dynamic DNS for freedns.afraid.org
-  ddclient-freedns:
-    image: linuxserver/ddclient:latest
-    container_name: ddclient-freedns
-    restart: always
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-    volumes:
-      - ${CORE_HOME}/ddclient/freedns:/config
-
-  # Dynamic DNS for cloudflare
-  ddclient-cloudflare:
-    image: linuxserver/ddclient:latest
-    container_name: ddclient-cloudflare
-    restart: always
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-    volumes:
-      - ${CORE_HOME}/ddclient/cloudflare:/config
-
-
   # Watchtower auto updater
   watchtower:
     image: containrrr/watchtower
