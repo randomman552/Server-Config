@@ -1,0 +1,22 @@
+version: '3'
+services:
+  # Wireguard for external access
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      TZ: $TZ
+      SERVERURL: $WIREGUARD_SERVER_URL
+      SERVERPORT: $WIREGUARD_SERVER_PORT
+      PEERS: $WIREGUARD_PEERS
+    volumes:
+      - ${WIREGUARD_HOME}/config:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
