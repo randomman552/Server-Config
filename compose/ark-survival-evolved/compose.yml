@@ -1,8 +1,7 @@
 version: '3'
 services:
-  ark:
+  server:
     image: hermsi/ark-server
-    container_name: ark
     restart: unless-stopped
     tty: true
     environment:
