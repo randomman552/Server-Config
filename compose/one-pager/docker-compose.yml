@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   one-pager:
-    image: ghcr.io/randomman552/one-pager:latest
+    image: randomman552/one-pager:latest
     container_name: one-pager
     hostname: $HOST
     restart: unless-stopped
