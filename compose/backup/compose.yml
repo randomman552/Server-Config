@@ -1,4 +1,5 @@
 services:
+  # Scheduling service
   scheduler:
     image: randomman552/rclone-scheduler
     restart: unless-stopped
@@ -10,6 +11,8 @@ services:
       BACKUP_REMOTE: $BACKUP_REMOTE
       BACKUP_DEST: $BACKUP_DEST
       BACKUP_FILTER_FROM: $BACKUP_FILTER_FROM
+
+  # Rclone daemon
   server:
     image: rclone/rclone
     restart: unless-stopped
@@ -28,7 +31,7 @@ services:
       traefik.http.services.rclone.loadbalancer.server.port: 5572
       traefik.http.routers.rclone.rule: Host(`${RCLONE_HOST}`)
       traefik.http.routers.rclone.entrypoints: https
-      traefik.http.routers.rclone.middlewares: local-whitelist
+      traefik.http.routers.rclone.middlewares: local-whitelist, authentik-forwardauth
       
       # Add to homepage
       homepage.group: Management
