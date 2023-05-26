@@ -19,8 +19,6 @@ services:
     environment:
       RCLONE_B2_ACCOUNT: $B2_ACCOUNT
       RCLONE_B2_KEY: $B2_KEY
-    ports:
-      - 5572:5572
     volumes:
       - $RCLONE_HOME/config:/config:rw
       - $DATA_PATH:/data:ro
