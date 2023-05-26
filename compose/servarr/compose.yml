@@ -48,7 +48,7 @@ services:
       traefik.http.services.prowlarr.loadbalancer.server.port: 9696
       traefik.http.routers.prowlarr.rule: Host(`${PROWLARR_HOST}`)
       traefik.http.routers.prowlarr.entrypoints: https
-      traefik.http.routers.prowlarr.middlewares: local-whitelist
+      traefik.http.routers.prowlarr.middlewares: local-whitelist, authentik-forwardauth
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Prowlarr
@@ -80,7 +80,7 @@ services:
       traefik.http.services.sonarr.loadbalancer.server.port: 8989
       traefik.http.routers.sonarr.rule: Host(`${SONARR_HOST}`)
       traefik.http.routers.sonarr.entrypoints: https
-      traefik.http.routers.sonarr.middlewares: local-whitelist
+      traefik.http.routers.sonarr.middlewares: local-whitelist, authentik-forwardauth
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Sonarr
@@ -112,7 +112,7 @@ services:
       traefik.http.services.radarr.loadbalancer.server.port: 7878
       traefik.http.routers.radarr.rule: Host(`${RADARR_HOST}`)
       traefik.http.routers.radarr.entrypoints: https
-      traefik.http.routers.radarr.middlewares: local-whitelist
+      traefik.http.routers.radarr.middlewares: local-whitelist, authentik-forwardauth
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Radarr
@@ -144,7 +144,7 @@ services:
       traefik.http.services.bazarr.loadbalancer.server.port: 6767
       traefik.http.routers.bazarr.rule: Host(`${BAZARR_HOST}`)
       traefik.http.routers.bazarr.entrypoints: https
-      traefik.http.routers.bazarr.middlewares: local-whitelist
+      traefik.http.routers.bazarr.middlewares: local-whitelist, authentik-forwardauth
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Bazarr
