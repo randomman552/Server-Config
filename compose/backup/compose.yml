@@ -1,0 +1,38 @@
+services:
+  scheduler:
+    image: randomman552/rclone-scheduler
+    restart: unless-stopped
+    environment:
+      RCLONE_PROTOCOL: http
+      RCLONE_HOST: server
+      RCLONE_PORT: $RCLONE_PORT
+      BACKUP_SCHEDULE: $BACKUP_SCHEDULE
+      BACKUP_REMOTE: $BACKUP_REMOTE
+      BACKUP_DEST: $BACKUP_DEST
+      BACKUP_FILTER_FROM: $BACKUP_FILTER_FROM
+  server:
+    image: rclone/rclone
+    restart: unless-stopped
+    environment:
+      RCLONE_B2_ACCOUNT: $ACCOUNT
+      RCLONE_B2_KEY: $KEY
+    ports:
+      - 5572:5572
+    volumes:
+      - $RCLONE_HOME/config:/config:rw
+      - $DATA_PATH:/data:ro
+    command: rcd --rc-web-gui --rc-addr :${RCLONE_PORT} --rc-web-gui-no-open-browser --rc-no-auth
+    labels:
+      # Traefik routing
+      traefik.enable: true
+      traefik.http.services.rclone.loadbalancer.server.port: 5572
+      traefik.http.routers.rclone.rule: Host(`${RCLONE_HOST}`)
+      traefik.http.routers.rclone.entrypoints: https
+      traefik.http.routers.rclone.middlewares: local-whitelist
+      
+      # Add to homepage
+      homepage.group: Management
+      homepage.name: Rclone
+      homepage.icon: rclone
+      homepage.description: Backup Provider
+      homepage.href: https://$RCLONE_HOST
