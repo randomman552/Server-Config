@@ -14,8 +14,8 @@ services:
     image: rclone/rclone
     restart: unless-stopped
     environment:
-      RCLONE_B2_ACCOUNT: $ACCOUNT
-      RCLONE_B2_KEY: $KEY
+      RCLONE_B2_ACCOUNT: $B2_ACCOUNT
+      RCLONE_B2_KEY: $B2_KEY
     ports:
       - 5572:5572
     volumes:
