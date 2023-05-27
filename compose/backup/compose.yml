@@ -19,6 +19,10 @@ services:
     environment:
       RCLONE_B2_ACCOUNT: $B2_ACCOUNT
       RCLONE_B2_KEY: $B2_KEY
+      RCLONE_TRANSFERS: 16
+      RCLONE_IGNORE_SIZE: true
+      RCLONE_IGNORE_ERRORS: true
+      RCLONE_IGNORE_CHECKSUM: true
     volumes:
       - $RCLONE_HOME/config:/config:rw
       - $DATA_PATH:/data:ro
