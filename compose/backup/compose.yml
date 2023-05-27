@@ -17,14 +17,16 @@ services:
     image: rclone/rclone
     restart: unless-stopped
     environment:
+      # Create Backblaze B2 config
       RCLONE_B2_ACCOUNT: $B2_ACCOUNT
       RCLONE_B2_KEY: $B2_KEY
+      RCLONE_CONFIG_BACKBLAZEB2_TYPE: b2
+      # Global settings
       RCLONE_TRANSFERS: 16
       RCLONE_IGNORE_SIZE: true
       RCLONE_IGNORE_ERRORS: true
       RCLONE_IGNORE_CHECKSUM: true
     volumes:
-      - $RCLONE_HOME/config:/config:rw
       - $DATA_PATH:/data:ro
     command: rcd --rc-web-gui --rc-addr :${RCLONE_PORT} --rc-web-gui-no-open-browser --rc-no-auth
     labels:
