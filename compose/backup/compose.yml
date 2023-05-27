@@ -23,8 +23,6 @@ services:
       RCLONE_IGNORE_SIZE: true
       RCLONE_IGNORE_ERRORS: true
       RCLONE_IGNORE_CHECKSUM: true
-    ports:
-      - 5572:5572
     volumes:
       - $RCLONE_HOME/config:/config:rw
       - $DATA_PATH:/data:ro
