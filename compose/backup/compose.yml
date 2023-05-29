@@ -28,7 +28,7 @@ services:
       RCLONE_IGNORE_CHECKSUM: true
     volumes:
       - $DATA_PATH:/data:ro
-    command: rcd --rc-web-gui --rc-addr :${RCLONE_PORT} --rc-web-gui-no-open-browser --rc-no-auth
+    command: rcd --rc-web-gui --rc-addr :${RCLONE_PORT} --rc-web-gui-no-open-browser --rc-no-auth --rc-enable-metrics
     labels:
       # Traefik routing
       traefik.enable: true
