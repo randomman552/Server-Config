@@ -66,9 +66,9 @@ services:
       - $MONITORING_HOME/influx/data:/var/lib/influxdb
     labels:
       traefik.enable: true
-      traefik.http.services.grafana.loadbalancer.server.port: 8086
-      traefik.http.routers.grafana.rule: Host(`$INFLUX_HOST`)
-      traefik.http.routers.grafana.entrypoints: https
+      traefik.http.services.influx.loadbalancer.server.port: 8086
+      traefik.http.routers.influx.rule: Host(`$INFLUX_HOST`)
+      traefik.http.routers.influx.entrypoints: https
       homepage.group: Management
       homepage.name: InfluxDB
       homepage.icon: influx
