@@ -14,7 +14,7 @@ services:
       traefik.http.services.grafana.loadbalancer.server.port: 3000
       traefik.http.routers.grafana.rule: Host(`$GRAFANA_HOST`)
       traefik.http.routers.grafana.entrypoints: https
-      homepage.group: Management
+      homepage.group: Monitoring
       homepage.name: Grafana
       homepage.icon: grafana
       homepage.description: Dashboard monitoring software
@@ -69,7 +69,7 @@ services:
       traefik.http.services.influx.loadbalancer.server.port: 8086
       traefik.http.routers.influx.rule: Host(`$INFLUX_HOST`)
       traefik.http.routers.influx.entrypoints: https
-      homepage.group: Management
+      homepage.group: Monitoring
       homepage.name: InfluxDB
       homepage.icon: influx
       homepage.description: Dashboard monitoring software
