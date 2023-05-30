@@ -58,8 +58,7 @@ services:
 
   # Influx
   influxdb:
-    image: influxdb
-    user: "1100"
+    image: influxdb:2.7
     networks:
       - monitoring
     volumes:
