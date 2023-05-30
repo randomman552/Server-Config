@@ -55,6 +55,26 @@ services:
     networks:
       - monitoring
 
+  # Influx
+  influxdb:
+    image: influxdb
+    user: "1100"
+    networks:
+      - monitoring
+    volumes:
+      - $MONITORING_HOME/influx/config:/etc/influxdb
+      - $MONITORING_HOME/influx/data:/var/lib/influxdb
+    labels:
+      traefik.enable: true
+      traefik.http.services.grafana.loadbalancer.server.port: 8086
+      traefik.http.routers.grafana.rule: Host(`$INFLUX_HOST`)
+      traefik.http.routers.grafana.entrypoints: https
+      homepage.group: Management
+      homepage.name: InfluxDB
+      homepage.icon: influx
+      homepage.description: Dashboard monitoring software
+      homepage.href: https://$INFLUX_HOST
+
 networks:
   monitoring:
     driver: bridge
