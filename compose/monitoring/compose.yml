@@ -3,6 +3,7 @@ services:
   # Grafana
   grafana:
     image: grafana/grafana-oss
+    restart: unless-stopped
     user: "1100"
     networks:
       - monitoring
