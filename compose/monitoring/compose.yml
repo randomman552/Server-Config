@@ -11,6 +11,7 @@ services:
       - $MONITORING_HOME/grafana:/var/lib/grafana
     environment:
       GF_SERVER_DOMAIN: $GRAFANA_HOST
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s"
       GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_NAME: "authentik"
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "$GRAFANA_AUTHENTIK_CLIENT_ID"
