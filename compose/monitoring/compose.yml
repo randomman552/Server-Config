@@ -58,6 +58,7 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     restart: unless-stopped
+    network_mode: host
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -69,8 +70,6 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     expose:
       - 9100
-    networks:
-      - monitoring
 
   # Influx
   influxdb:
