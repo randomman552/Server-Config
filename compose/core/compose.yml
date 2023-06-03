@@ -57,6 +57,8 @@ services:
       - --entrypoints.https.http.tls.certResolver=letsencrypt
       - --entrypoints.https.http.tls.domains[0].main=$CLOUDFLARE_DOMAIN
       - --entrypoints.https.http.tls.domains[0].sans=*.$CLOUDFLARE_DOMAIN
+      # Metrics
+      - --metrics.prometheus=true
     environment:
       CLOUDFLARE_EMAIL: $CLOUDFLARE_EMAIL
       CLOUDFLARE_DNS_API_TOKEN: $CLOUDFLARE_DNS_API_TOKEN
