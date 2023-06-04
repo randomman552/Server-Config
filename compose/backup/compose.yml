@@ -10,7 +10,6 @@ services:
       BACKUP_SCHEDULE: $BACKUP_SCHEDULE
       BACKUP_REMOTE: $BACKUP_REMOTE
       BACKUP_DEST: $BACKUP_DEST
-      BACKUP_FILTER_FROM: $BACKUP_FILTER_FROM
 
   # Rclone daemon
   server:
@@ -27,6 +26,7 @@ services:
       RCLONE_TRANSFERS: 16
       RCLONE_IGNORE_ERRORS: true
       RCLONE_DELETE_EXCLUDED: true
+      RCLONE_FILTER_FROM: $BACKUP_FILTER_FROM
       RCLONE_DRY_RUN: true
     volumes:
       - $DATA_PATH:/data:ro
