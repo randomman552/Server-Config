@@ -28,6 +28,7 @@ services:
       RCLONE_IGNORE_SIZE: true
       RCLONE_IGNORE_ERRORS: true
       RCLONE_IGNORE_CHECKSUM: true
+      RCLONE_DELETE_EXCLUDED: true
       RCLONE_DRY_RUN: true
     volumes:
       - $DATA_PATH:/data:ro
