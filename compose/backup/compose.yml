@@ -16,6 +16,8 @@ services:
   server:
     image: rclone/rclone
     restart: unless-stopped
+    ports:
+      - 5572:5572
     environment:
       # Create Backblaze B2 config
       RCLONE_CONFIG_B2_ACCOUNT: $B2_ACCOUNT
@@ -26,13 +28,14 @@ services:
       RCLONE_IGNORE_SIZE: true
       RCLONE_IGNORE_ERRORS: true
       RCLONE_IGNORE_CHECKSUM: true
+      RCLONE_DRY_RUN: true
     volumes:
       - $DATA_PATH:/data:ro
     command: rcd --rc-web-gui --rc-addr :${RCLONE_PORT} --rc-web-gui-no-open-browser --rc-no-auth --rc-enable-metrics
     labels:
       # Traefik routing
       traefik.enable: true
-      traefik.http.services.rclone.loadbalancer.server.port: 5572
+      traefik.http.services.rclone.loadbalancer.server.port: $RCLONE_PORT
       traefik.http.routers.rclone.rule: Host(`${RCLONE_HOST}`)
       traefik.http.routers.rclone.entrypoints: https
       traefik.http.routers.rclone.middlewares: local-whitelist, authentik-forwardauth
