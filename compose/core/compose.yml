@@ -59,6 +59,7 @@ services:
       - --entrypoints.https.http.tls.domains[0].sans=*.$CLOUDFLARE_DOMAIN
       # Metrics
       - --metrics.prometheus=true
+      - --metrics.prometheus.manualrouting=true
     environment:
       CLOUDFLARE_EMAIL: $CLOUDFLARE_EMAIL
       CLOUDFLARE_DNS_API_TOKEN: $CLOUDFLARE_DNS_API_TOKEN
@@ -67,12 +68,21 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       traefik.enable: true
+      # Traefik dashboard router
       traefik.http.services.traefik.loadbalancer.server.port: 8080
       traefik.http.routers.traefik.rule: Host(`${TRAEFIK_HOST}`)
       traefik.http.routers.traefik.entrypoints: https
       traefik.http.routers.traefik.service: api@internal
       traefik.http.routers.traefik.middlewares: local-whitelist@docker
+      # Traefik prometheus metrics
+      traefik.http.services.traefik-metrics.loadbalancer.server.port: 8080
+      traefik.http.routers.traefik-metrics.rule: Host(`${TRAEFIK_HOST}`) && PathPrefix(`/metrics`)
+      traefik.http.routers.traefik-metrics.entrypoints: https
+      traefik.http.routers.traefik-metrics.service: prometheus@internal
+      traefik.http.routers.traefik-metrics.middlewares: local-whitelist@docker
+      # Local whitelist middleware
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+      # Homepage link
       homepage.group: $HOMEPAGE_GROUP
       homepage.name: Traefik
       homepage.icon: traefik
