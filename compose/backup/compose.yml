@@ -23,11 +23,10 @@ services:
       RCLONE_CONFIG_B2_KEY: $B2_KEY
       RCLONE_CONFIG_B2_TYPE: b2
       # Global settings
-      RCLONE_TRANSFERS: 16
+      RCLONE_TRANSFERS: 8
       RCLONE_IGNORE_ERRORS: true
       RCLONE_DELETE_EXCLUDED: true
       RCLONE_FILTER_FROM: $BACKUP_FILTER_FROM
-      RCLONE_DRY_RUN: true
     volumes:
       - $DATA_PATH:/data:ro
     command: rcd --rc-web-gui --rc-addr :${RCLONE_PORT} --rc-web-gui-no-open-browser --rc-no-auth --rc-enable-metrics
