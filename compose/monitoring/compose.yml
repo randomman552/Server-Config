@@ -77,8 +77,8 @@ services:
     networks:
       - monitoring
     volumes:
-      - $MONITORING_HOME/influx/config:/etc/influxdb
-      - $MONITORING_HOME/influx/data:/var/lib/influxdb
+      - $MONITORING_HOME/influx/config:/etc/influxdb2
+      - $MONITORING_HOME/influx/data:/var/lib/influxdb2
     labels:
       traefik.enable: true
       traefik.http.services.influx.loadbalancer.server.port: 8086
