@@ -4,12 +4,10 @@ services:
     image: randomman552/barotrauma:latest
     container_name: barotrauma
     restart: unless-stopped
-    environment:
-      - PGID=$BAROTRAUMA_UID
-      - PUID=$BAROTRAUMA_PID
+    user: 1600:1600
     ports:
       - 27015:27015/udp
       - 27016:27016/udp
     volumes:
       - ${BAROTRAUMA_HOME}/data:/home/baro/.local/share/Daedalic Entertainment GmbH/Barotrauma
-      - ${BAROTRAUMA_HOME}/config:/server/Data
+      - ${BAROTRAUMA_HOME}/server:/server
