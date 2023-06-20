@@ -12,6 +12,7 @@ services:
       SERVERURL: $WIREGUARD_SERVER_URL
       SERVERPORT: $WIREGUARD_SERVER_PORT
       PEERS: $WIREGUARD_PEERS
+      PEERDNS: $WIREGUARD_PEER_DNS
     volumes:
       - ${WIREGUARD_HOME}/config:/config
       - /lib/modules:/lib/modules
