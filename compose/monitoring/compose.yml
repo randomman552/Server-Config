@@ -176,7 +176,7 @@ services:
     labels:
       traefik.enable: true
       traefik.http.services.speedtest-tester.loadbalancer.server.port: 3000
-      traefik.http.routers.speedtest-tester.rule: Host(`$TESTER_URL`)
+      traefik.http.routers.speedtest-tester.rule: Host(`$SPEEDTEST_TESTER_URL`)
       traefik.http.routers.speedtest-tester.entrypoints: https
       traefik.http.routers.speedtest-tester.middlewares: local-whitelist, speedtest-limit
       traefik.http.middlewares.speedtest-limit.buffering.maxRequestBodyBytes: 10000000000
