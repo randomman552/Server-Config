@@ -54,6 +54,30 @@ services:
     networks:
       - monitoring
   
+  # Influx
+  influxdb:
+    image: influxdb:2.7
+    networks:
+      - monitoring
+    volumes:
+      - $MONITORING_HOME/influx/config:/etc/influxdb2
+      - $MONITORING_HOME/influx/data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    labels:
+      traefik.enable: true
+      traefik.http.services.influx.loadbalancer.server.port: 8086
+      traefik.http.routers.influx.rule: Host(`$INFLUX_HOST`)
+      traefik.http.routers.influx.entrypoints: https
+      homepage.group: Monitoring
+      homepage.name: InfluxDB
+      homepage.icon: influx
+      homepage.description: Dashboard monitoring software
+      homepage.href: https://$INFLUX_HOST
+
   # Node information provider
   node-exporter:
     image: prom/node-exporter:latest
@@ -71,25 +95,55 @@ services:
     expose:
       - 9100
 
-  # Influx
-  influxdb:
-    image: influxdb:2.7
-    networks:
-      - monitoring
+  # Scrutiny
+  scrutiny-web:
+    image: 'ghcr.io/analogj/scrutiny:master-web'
+    restart: unless-stopped
+    privileged: true
     volumes:
-      - $MONITORING_HOME/influx/config:/etc/influxdb2
-      - $MONITORING_HOME/influx/data:/var/lib/influxdb2
+      - $MONITORING_HOME/scrutiny/config:/opt/scrutiny/config
+      - /run/udev:/run/udev:ro
+    environment:
+      SCRUTINY_WEB_INFLUXDB_HOST: 'influxdb'
+      SCRUTINY_WEB_INFLUXDB_TOKEN: $SCRUTINY_INFLUXDB_TOKEN
+      INFLUXDB_SCRUTINY_BUCKET_BASENAME: scrutiny-metrics
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
     labels:
       traefik.enable: true
-      traefik.http.services.influx.loadbalancer.server.port: 8086
-      traefik.http.routers.influx.rule: Host(`$INFLUX_HOST`)
-      traefik.http.routers.influx.entrypoints: https
+      traefik.http.services.scrutiny.loadbalancer.server.port: 8080
+      traefik.http.routers.scrutiny.rule: Host(`${SCRUTINY_HOST}`)
+      traefik.http.routers.scrutiny.entrypoints: https
+      traefik.http.routers.scrutiny.middlewares: local-whitelist
       homepage.group: Monitoring
-      homepage.name: InfluxDB
-      homepage.icon: influx
-      homepage.description: Dashboard monitoring software
-      homepage.href: https://$INFLUX_HOST
+      homepage.name: Scrutiny
+      homepage.icon: scrutiny
+      homepage.href: https://${SCRUTINY_HOST}
+      homepage.description: Remote S.M.A.R.T monitoring software
+      homepage.widget.type: scrutiny
+      homepage.widget.url: https://${SCRUTINY_HOST}
 
+  scrutiny-collector:
+    image: 'ghcr.io/analogj/scrutiny:master-collector'
+    cap_add:
+      - SYS_RAWIO
+    volumes:
+      - '/run/udev:/run/udev:ro'
+    environment:
+      COLLECTOR_API_ENDPOINT: 'http://scrutiny-web:8080'
+    depends_on:
+      scrutiny-web:
+        condition: service_healthy
+    devices:
+      - "/dev/sda"
+      - "/dev/sdb"
 networks:
   monitoring:
     driver: bridge
