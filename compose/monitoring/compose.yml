@@ -115,6 +115,8 @@ services:
       timeout: 10s
       retries: 20
       start_period: 10s
+    networks:
+      - monitoring
     labels:
       traefik.enable: true
       traefik.http.services.scrutiny.loadbalancer.server.port: 8080
@@ -135,6 +137,8 @@ services:
       - SYS_RAWIO
     volumes:
       - '/run/udev:/run/udev:ro'
+    networks:
+      - monitoring
     environment:
       COLLECTOR_API_ENDPOINT: 'http://scrutiny-web:8080'
     depends_on:
