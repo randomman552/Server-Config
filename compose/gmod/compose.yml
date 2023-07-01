@@ -3,11 +3,10 @@ services:
   garrysmod:
     image: randomman552/gmod
     container_name: gmod
+    user: ${GMOD_UID:-1600}:${GMOD_PID:-1600}
     tty: true
     restart: unless-stopped
     environment:
-      - PUID=${GMOD_UID:-1600}
-      - PGID=${GMOD_PID:-1600}
       - GAME_MODE=${GAME_MODE:-sandbox}
       - MAP=${MAP:-gm_construct}
       - WORKSHOP_COLLECTION=${WORKSHOP_COLLECTION}
