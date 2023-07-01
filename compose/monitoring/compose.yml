@@ -142,9 +142,6 @@ services:
       COLLECTOR_API_ENDPOINT: 'http://scrutiny-web:8080'
     depends_on:
       - scrutiny-web
-    devices:
-      - "/dev/sda"
-      - "/dev/sdb"
 networks:
   monitoring:
     driver: bridge
