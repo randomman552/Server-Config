@@ -108,7 +108,7 @@ services:
       SCRUTINY_WEB_INFLUXDB_TOKEN: $SCRUTINY_INFLUXDB_TOKEN
       INFLUXDB_SCRUTINY_BUCKET_BASENAME: scrutiny-metrics
     depends_on:
-      influxdb:
+      - influxdb
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 5s
@@ -138,7 +138,7 @@ services:
     environment:
       COLLECTOR_API_ENDPOINT: 'http://scrutiny-web:8080'
     depends_on:
-      scrutiny-web:
+      - scrutiny-web
     devices:
       - "/dev/sda"
       - "/dev/sdb"
