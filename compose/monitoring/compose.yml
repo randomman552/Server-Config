@@ -67,7 +67,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 20
-    entrypoint: sleep 100000
     labels:
       traefik.enable: true
       traefik.http.services.influx.loadbalancer.server.port: 8086
