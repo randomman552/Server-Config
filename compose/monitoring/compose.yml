@@ -99,10 +99,8 @@ services:
   scrutiny-web:
     image: 'ghcr.io/analogj/scrutiny:master-web'
     restart: unless-stopped
-    privileged: true
     volumes:
       - $MONITORING_HOME/scrutiny/config:/opt/scrutiny/config
-      - /run/udev:/run/udev:ro
     environment:
       SCRUTINY_WEB_INFLUXDB_HOST: 'influxdb'
       SCRUTINY_WEB_INFLUXDB_TOKEN: $SCRUTINY_INFLUXDB_TOKEN
@@ -132,6 +130,8 @@ services:
 
   scrutiny-collector:
     image: 'ghcr.io/analogj/scrutiny:master-collector'
+    restart: unless-stopped
+    privileged: true
     cap_add:
       - SYS_RAWIO
     volumes:
