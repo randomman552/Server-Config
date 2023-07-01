@@ -104,6 +104,8 @@ services:
     environment:
       SCRUTINY_WEB_INFLUXDB_HOST: 'influxdb'
       SCRUTINY_WEB_INFLUXDB_TOKEN: $SCRUTINY_INFLUXDB_TOKEN
+      SCRUTINY_WEB_INFLUXDB_ORG: $SCRUTINY_INFLUXDB_ORG
+      SCRUTINY_WEB_INFLUXDB_BUCKET: $SCRUTINY_INFLUXDB_BUCKET
     depends_on:
       - influxdb
     healthcheck:
