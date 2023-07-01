@@ -109,7 +109,6 @@ services:
       INFLUXDB_SCRUTINY_BUCKET_BASENAME: scrutiny-metrics
     depends_on:
       influxdb:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 5s
@@ -140,7 +139,6 @@ services:
       COLLECTOR_API_ENDPOINT: 'http://scrutiny-web:8080'
     depends_on:
       scrutiny-web:
-        condition: service_healthy
     devices:
       - "/dev/sda"
       - "/dev/sdb"
