@@ -98,6 +98,7 @@ services:
     container_name: pihole
     environment:
       VIRTUAL_HOST: $PIHOLE_HOST
+      WEBPASSWORD: $PIHOLE_TOKEN
     ports:
       - 192.168.0.100:53:53/tcp
       - 192.168.0.100:53:53/udp
@@ -120,6 +121,20 @@ services:
       homepage.description: Local DNS resolver service
       homepage.widget.type: pihole
       homepage.widget.url: https://$PIHOLE_HOST
+
+  pihole-exporter:
+    image: ekofr/pihole-exporter
+    restart: unless-stopped
+    environment:
+      PIHOLE_HOSTNAME: pihole
+      PIHOLE_API_TOKEN: $PIHOLE_TOKEN
+    labels:
+      traefik.enable: true
+      traefik.http.services.pihole-exporter.loadbalancer.server.port: 9617
+      traefik.http.routers.pihole-exporter.rule: Host(`$PIHOLE_HOST`) || PathPrefix(`/metrics`)
+      traefik.http.routers.pihole-exporter.entrypoints: https
+      traefik.http.routers.pihole-exporter.middlewares: local-whitelist@docker
+      homepage.group: $HOMEPAGE_GROUP
 
 
   # Portainer for docker container management
