@@ -128,6 +128,8 @@ services:
     environment:
       PIHOLE_HOSTNAME: pihole
       PIHOLE_PASSWORD: $PIHOLE_TOKEN
+    depends_on:
+      - pihole
     labels:
       traefik.enable: true
       traefik.http.services.pihole-exporter.loadbalancer.server.port: 9617
