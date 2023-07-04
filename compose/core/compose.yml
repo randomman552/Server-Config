@@ -136,7 +136,6 @@ services:
       traefik.http.routers.pihole-exporter.rule: Host(`$PIHOLE_HOST`) || PathPrefix(`/metrics`)
       traefik.http.routers.pihole-exporter.entrypoints: https
       traefik.http.routers.pihole-exporter.middlewares: local-whitelist@docker
-      homepage.group: $HOMEPAGE_GROUP
 
 
   # Portainer for docker container management
