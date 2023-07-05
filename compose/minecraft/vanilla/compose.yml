@@ -17,7 +17,7 @@ services:
       - $MINECRAFT_HOME/data:/data
     labels:
       traefik.enable: true
-      traefik.http.services.minecraft-dynmap.loadbalancer.server.port: 8123
+      traefik.http.services.minecraft-dynmap.loadbalancer.server.port: 8080
       traefik.http.routers.minecraft-dynmap.rule: Host(`$DYNMAP_HOST`)
       traefik.http.routers.minecraft-dynmap.entrypoints: https
       traefik.http.routers.minecraft-dynmap.tls: true
