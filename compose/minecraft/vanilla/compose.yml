@@ -2,7 +2,7 @@ version: '3'
 services:
   minecraft-server:
     image: itzg/minecraft-server:java17-alpine
-    restart: always
+    restart: unless-stopped
     user: $UID:$PID
     ports:
       - 25565:25565
