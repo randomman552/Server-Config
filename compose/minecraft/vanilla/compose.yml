@@ -1,0 +1,23 @@
+version: '3'
+services:
+  minecraft-server:
+    image: itzg/minecraft-server:java17-alpine
+    restart: always
+    user: $UID:$PID
+    ports:
+      - 25565:25565
+    environment:
+      EULA: true
+      TYPE: paper
+      INIT_MEMORY: 1G
+      MAX_MEMORY: 8G
+      ENABLE_ROLLING_LOGS: true
+      VERSION: 1.20.1
+    volumes:
+      - $MINECRAFT_HOME/data:/data
+    labels:
+      traefik.enable: true
+      traefik.http.services.minecraft-dynmap.loadbalancer.server.port: 8123
+      traefik.http.routers.minecraft-dynmap.rule: Host(`$DYNMAP_HOST`)
+      traefik.http.routers.minecraft-dynmap.entrypoints: https
+      traefik.http.routers.minecraft-dynmap.tls: true
