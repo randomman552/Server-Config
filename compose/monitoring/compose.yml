@@ -57,6 +57,7 @@ services:
   # Influx
   influxdb:
     image: influxdb:2.7
+    restart: unless-stopped
     networks:
       - monitoring
     volumes:
