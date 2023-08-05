@@ -27,6 +27,12 @@ services:
       traefik.http.routers.vaultwarden-web.service: vaultwarden-web
       traefik.http.routers.vaultwarden-web.entrypoints: https
       traefik.http.routers.vaultwarden-web.middlewares: vaultwarden-security
+      # Admin portal
+      traefik.http.services.vaultwarden-admin.loadbalancer.server.port: 80
+      traefik.http.routers.vaultwarden-admin.rule: Host(`$VAULTWARDEN_HOST`) && PathPrefix(`/admin`)
+      traefik.http.routers.vaultwarden-admin.service: vaultwarden-admin
+      traefik.http.routers.vaultwarden-admin.entrypoints: https
+      traefik.http.routers.vaultwarden-admin.middlewares: vaultwarden-security, local-whitelist
       # Notifications
       traefik.http.services.vaultwarden-websocket.loadbalancer.server.port: 3012
       traefik.http.routers.vaultwarden-websocket.rule: Host(`$VAULTWARDEN_HOST`) && Path(`/notifications/hub`)
