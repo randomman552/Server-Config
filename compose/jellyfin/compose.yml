@@ -30,9 +30,16 @@ services:
       traefik.http.middlewares.jellyfin-security.headers.customFrameOptionsValue: allow-from https://$JELLYFIN_HOST
       # HTTP Service
       traefik.http.services.jellyfin.loadbalancer.server.port: 8096
+      traefik.http.routers.jellyfin.service: jellyfin
       traefik.http.routers.jellyfin.rule: Host(`${JELLYFIN_HOST}`)
       traefik.http.routers.jellyfin.entrypoints: https
       traefik.http.routers.jellyfin.middlewares: jellyfin-security
+      # Metrics service
+      traefik.http.services.jellyfin-metrics.loadbalancer.server.port: 8096
+      traefik.http.routers.jellyfin-metrics.service: jellyfin-metrics
+      traefik.http.routers.jellyfin-metrics.rule: Host(`${JELLYFIN_HOST}`) && Path(`/metrics`)
+      traefik.http.routers.jellyfin-metrics.entrypoints: https
+      traefik.http.routers.jellyfin-metrics.middlewares: jellyfin-security, local-whitelist
       # Homepage link
       homepage.group: Streaming
       homepage.name: Jellyfin
