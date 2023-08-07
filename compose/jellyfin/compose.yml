@@ -37,7 +37,7 @@ services:
       # Metrics service
       traefik.http.services.jellyfin-metrics.loadbalancer.server.port: 8096
       traefik.http.routers.jellyfin-metrics.service: jellyfin-metrics
-      traefik.http.routers.jellyfin-metrics.rule: Host(`${JELLYFIN_HOST}`) && Path(`/metrics`)
+      traefik.http.routers.jellyfin-metrics.rule: Host(`${JELLYFIN_HOST}`) && PathPrefix(`/metrics`)
       traefik.http.routers.jellyfin-metrics.entrypoints: https
       traefik.http.routers.jellyfin-metrics.middlewares: jellyfin-security, local-whitelist
       # Homepage link
