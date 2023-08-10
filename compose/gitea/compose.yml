@@ -20,6 +20,7 @@ services:
       GITEA__MAILER__PASSWD: $SMTP_PASSWORD
       GITEA__MIGRATIONS__ALLOW_LOCALNETWORKS: true
       GITEA__WEBHOOK__ALLOWED_HOST_LIST: private
+      GITEA__OPENID__ENABLE_OPENID_SIGNUP: false
     volumes:
       - $GITEA_PATH/data:/var/lib/gitea
       - $GITEA_PATH/config:/etc/gitea
