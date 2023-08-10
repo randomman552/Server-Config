@@ -21,6 +21,7 @@ services:
       GITEA__MIGRATIONS__ALLOW_LOCALNETWORKS: true
       GITEA__WEBHOOK__ALLOWED_HOST_LIST: private
       GITEA__OPENID__ENABLE_OPENID_SIGNUP: false
+      GITEA__OPENID__ENABLE_OPENID_SIGNIN: false
     volumes:
       - $GITEA_PATH/data:/var/lib/gitea
       - $GITEA_PATH/config:/etc/gitea
