@@ -47,6 +47,24 @@ services:
       interval: 30s
       retries: 5
       timeout: 3s
+
+  # Prometheus exporter
+  nextcloud-exporter:
+    image: xperimental/nextcloud-exporter
+    container_name: nextcloud-exporter
+    restart: unless-stopped
+    environment:
+      NEXTCLOUD_SERVER: https://$NEXTCLOUD_HOST
+      NEXTCLOUD_AUTH_TOKEN: $NEXTCLOUD_METRICS_AUTH_TOKEN
+    depends_on:
+      - nextcloud
+    labels:
+      traefik.enable: true
+      traefik.http.services.nextcloud.loadbalancer.server.port: 9205
+      traefik.http.routers.nextcloud.rule: Host(`$NEXTCLOUD_HOST`) && PathPrefix(`/metrics`)
+      traefik.http.routers.nextcloud.entrypoints: https
+      traefik.http.routers.nextcloud.middlewares: local-whitelist, nextcloud-headers
+      
   
   # Nextcloud application
   nextcloud:
