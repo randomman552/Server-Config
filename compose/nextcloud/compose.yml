@@ -60,12 +60,11 @@ services:
       - nextcloud
     labels:
       traefik.enable: true
-      traefik.http.services.nextcloud.loadbalancer.server.port: 9205
-      traefik.http.routers.nextcloud.rule: Host(`$NEXTCLOUD_HOST`) && PathPrefix(`/metrics`)
-      traefik.http.routers.nextcloud.entrypoints: https
-      traefik.http.routers.nextcloud.middlewares: local-whitelist, nextcloud-headers
+      traefik.http.services.nextcloud-metrics.loadbalancer.server.port: 9205
+      traefik.http.routers.nextcloud-metrics.rule: Host(`$NEXTCLOUD_HOST`) && PathPrefix(`/metrics`)
+      traefik.http.routers.nextcloud-metrics.entrypoints: https
+      traefik.http.routers.nextcloud-metrics.middlewares: local-whitelist, nextcloud-headers
       
-  
   # Nextcloud application
   nextcloud:
     image: randomman552/nextcloud-ffmpeg:stable-apache
