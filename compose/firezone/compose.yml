@@ -51,12 +51,12 @@ services:
     labels:
       traefik.enable: true
       # Middleware
-      traefik.http.middleware.firezone-security.headers.customresponseheaders.X-XSS-Protection: 1; mode=block
-      traefik.http.middleware.firezone-security.headers.customresponseheaders.X-Content-Type-Options: nosniff
-      traefik.http.middleware.firezone-security.headers.customresponseheaders.Referrer-Policy: no-referrer-when-downgrade
-      traefik.http.middleware.firezone-security.headers.customresponseheaders.Content-Security-Policy: "default-src 'self' ws: wss: http: https: data: blob: 'unsafe-inline'; frame-ancestors 'self';"
-      traefik.http.middleware.firezone-security.headers.customresponseheaders.Permissions-Policy: interest-cohort=()
-      traefik.http.middleware.firezone-security.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex
+      traefik.http.middlewares.firezone-security.headers.customresponseheaders.X-XSS-Protection: 1; mode=block
+      traefik.http.middlewares.firezone-security.headers.customresponseheaders.X-Content-Type-Options: nosniff
+      traefik.http.middlewares.firezone-security.headers.customresponseheaders.Referrer-Policy: no-referrer-when-downgrade
+      traefik.http.middlewares.firezone-security.headers.customresponseheaders.Content-Security-Policy: "default-src 'self' ws: wss: http: https: data: blob: 'unsafe-inline'; frame-ancestors 'self';"
+      traefik.http.middlewares.firezone-security.headers.customresponseheaders.Permissions-Policy: interest-cohort=()
+      traefik.http.middlewares.firezone-security.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex
       # Router
       traefik.http.services.firezone.loadbalancer.server.port: 13000
       traefik.http.routers.firezone.rule: Host(`$FIREZONE_HOST`)
