@@ -78,6 +78,22 @@ services:
       <<: *default-deploy
       update_config:
         order: stop-first
+  
+  # Periodic database backups
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:alpine
+    user: postgres:postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: $DATABASE_USER
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_DB: $DATABASE_NAME
+    volumes:
+      - ${FIREZONE_HOME}/backups:/backups
+    deploy:
+      <<: *default-deploy
+    depends_on:
+      - postgres
 
 networks:
   firezone-network:
