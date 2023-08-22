@@ -94,6 +94,8 @@ services:
       <<: *default-deploy
     depends_on:
       - postgres
+    networks:
+      - firezone-network
 
 networks:
   firezone-network:
