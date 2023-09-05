@@ -148,7 +148,7 @@ services:
 
   # Speed test tracker
   speedtest-tracker:
-    image: ghcr.io/alexjustesen/speedtest-tracker
+    image: ghcr.io/alexjustesen/speedtest-tracker:v0.11.17
     container_name: speedtest-tracker
     restart: unless-stopped
     environment:
