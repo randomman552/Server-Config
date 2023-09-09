@@ -148,7 +148,7 @@ services:
 
   # Speed test tracker
   speedtest:
-    image: ghcr.io/alexjustesen/speedtest-tracker:v0.11.18
+    image: ghcr.io/alexjustesen/speedtest-tracker:v0.11.17
     restart: unless-stopped
     environment:
       PUID: 1000
