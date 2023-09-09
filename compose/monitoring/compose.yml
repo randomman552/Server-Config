@@ -154,6 +154,7 @@ services:
       PUID: 1000
       PGID: 1000
       TZ: Europe/London
+      APP_KEY: $SPEEDTEST_APP_KEY
       DB_CONNECTION: pgsql
       DB_HOST: speedtest-db
       DB_PORT: 5432
