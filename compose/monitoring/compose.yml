@@ -167,6 +167,7 @@ services:
       - influxdb
     networks:
       - monitoring
+      - speedtest
     labels:
       traefik.enable: true
       traefik.http.services.speedtest-tracker.loadbalancer.server.port: 80
@@ -196,12 +197,16 @@ services:
       - POSTGRES_PASSWORD=${SPEEDTEST_PG_PASSWORD:?Speedtest Database Password Requried}
       - POSTGRES_USER=${SPEEDTEST_PG_USER:?Speedtest Database User Required}
       - POSTGRES_DB=${SPEEDTEST_PG_DB:?Speedtest Database Required}
+    networks:
+      - speedtest
   
   # Periodic speedtest tracker database backups
   speedtest-db-backup:
     image: prodrigestivill/postgres-backup-local:alpine
     restart: unless-stopped
     user: postgres:postgres
+    depends_on:
+      - speedtest-db
     environment:
       POSTGRES_USER: $SPEEDTEST_PG_USER
       POSTGRES_PASSWORD: $SPEEDTEST_PG_PASSWORD
@@ -209,13 +214,15 @@ services:
       POSTGRES_HOST: speedtest-db
     volumes:
       - ${MONITORING_HOME}/speedtest/tracker/postgres-backups:/backups
-    depends_on:
-      - speedtest-db
+    networks:
+      - speedtest
 
   # Speedtest
   speedtest-tester:
     image: openspeedtest/latest
     restart: unless-stopped
+    networks:
+      - speedtest
     labels:
       traefik.enable: true
       traefik.http.services.speedtest-tester.loadbalancer.server.port: 3000
@@ -232,4 +239,6 @@ services:
 
 networks:
   monitoring:
+    driver: bridge
+  speedtest:
     driver: bridge
