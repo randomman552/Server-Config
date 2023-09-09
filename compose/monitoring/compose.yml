@@ -162,7 +162,7 @@ services:
       DB_USERNAME: $SPEEDTEST_PG_USER
       DB_PASSWORD: $SPEEDTEST_PG_PASSWORD
     volumes:
-      - $MONITORING_HOME/speedtest/tracker/config:/config
+      - $MONITORING_HOME/speedtest-tracker/config:/config
     depends_on:
       - speedtest-db
       - influxdb
@@ -193,7 +193,7 @@ services:
       retries: 5
       timeout: 5s
     volumes:
-      - ${MONITORING_HOME}/speedtest/tracker/postgres:/var/lib/postgresql/data
+      - ${MONITORING_HOME}/speedtest-tracker/postgres:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=${SPEEDTEST_PG_PASSWORD:?Speedtest Database Password Requried}
       - POSTGRES_USER=${SPEEDTEST_PG_USER:?Speedtest Database User Required}
@@ -214,7 +214,7 @@ services:
       POSTGRES_DB: $SPEEDTEST_PG_DB
       POSTGRES_HOST: speedtest-db
     volumes:
-      - ${MONITORING_HOME}/speedtest/tracker/postgres-backups:/backups
+      - ${MONITORING_HOME}/speedtest-tracker/postgres-backups:/backups
     networks:
       - speedtest
 
