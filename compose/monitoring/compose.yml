@@ -147,15 +147,24 @@ services:
       - scrutiny-web
 
   # Speed test tracker
-  speedtest-tracker:
-    image: ghcr.io/alexjustesen/speedtest-tracker:v0.11.17
-    container_name: speedtest-tracker
+  speedtest:
+    image: ghcr.io/alexjustesen/speedtest-tracker
     restart: unless-stopped
     environment:
       PUID: 1000
       PGID: 1000
+      TZ: Europe/London
+      DB_CONNECTION: pgsql
+      DB_HOST: speedtest-db
+      DB_PORT: 5432
+      DB_DATABASE: $SPEEDTEST_PG_DB
+      DB_USERNAME: $SPEEDTEST_PG_USER
+      DB_PASSWORD: $SPEEDTEST_PG_PASSWORD
     volumes:
       - $MONITORING_HOME/speedtest/tracker/config:/config
+    depends_on:
+      - speedtest-db
+      - influxdb
     networks:
       - monitoring
     labels:
@@ -171,10 +180,41 @@ services:
       homepage.icon: speedtest-tracker
       homepage.description: Network speed monitoring
 
-  # Speed test
+  # Speedtest tracker database
+  speedtest-db:
+    image: docker.io/library/postgres:12-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - ${MONITORING_HOME}/speedtest/tracker/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${SPEEDTEST_PG_PASSWORD:?Speedtest Database Password Requried}
+      - POSTGRES_USER=${SPEEDTEST_PG_USER:?Speedtest Database User Required}
+      - POSTGRES_DB=${SPEEDTEST_PG_DB:?Speedtest Database Required}
+  
+  # Periodic speedtest tracker database backups
+  speedtest-db-backup:
+    image: prodrigestivill/postgres-backup-local:alpine
+    restart: unless-stopped
+    user: postgres:postgres
+    environment:
+      POSTGRES_USER: $SPEEDTEST_PG_USER
+      POSTGRES_PASSWORD: $SPEEDTEST_PG_PASSWORD
+      POSTGRES_DB: $SPEEDTEST_PG_DB
+      POSTGRES_HOST: speedtest-db
+    volumes:
+      - ${MONITORING_HOME}/speedtest/tracker/postgres-backups:/backups
+    depends_on:
+      - speedtest-db
+
+  # Speedtest
   speedtest-tester:
     image: openspeedtest/latest
-    container_name: speedtest-tester
     restart: unless-stopped
     labels:
       traefik.enable: true
