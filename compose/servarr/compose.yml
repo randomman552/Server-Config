@@ -155,6 +155,45 @@ services:
       homepage.widget.url: https://$BAZARR_HOST
       homepage.widget.key: $BAZARR_API_KEY
 
+  # Transcoding
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    expose:
+      - 8265:8265
+      - 8266:8266
+    environment:
+      TZ: $TIMEZONE
+      PUID: $PUID
+      PGID: $PGID
+      UMASK_SET: $UMASK
+      serverIP: 0.0.0.0
+      serverPort: 8266
+      webUIPort: 8265
+      internalNode: true
+      inContainer: true
+      nodeName: server-node
+    volumes:
+      - ${SERVARR_HOME}/tdarr/server:/app/server
+      - ${SERVARR_HOME}/tdarr/configs:/app/configs
+      - ${SERVARR_HOME}/tdarr/logs:/app/logs
+      - ${SERVARR_HOME}/tdarr/temp:/temp
+      - ${MEDIA_HOME}:/media
+    labels:
+      traefik.enable: true
+      traefik.http.services.bazarr.loadbalancer.server.port: 8265
+      traefik.http.routers.bazarr.rule: Host(`${TDARR_HOST}`)
+      traefik.http.routers.bazarr.entrypoints: https
+      traefik.http.routers.bazarr.middlewares: local-whitelist, authentik-forwardauth
+      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+
   # Content requests
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
