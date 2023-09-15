@@ -180,6 +180,8 @@ services:
       internalNode: true
       inContainer: true
       nodeName: server-node
+      NVIDIA_DRIVER_CAPABILITIES: all
+      NVIDIA_VISIBLE_DEVICES: all
     volumes:
       - ${SERVARR_HOME}/tdarr/server:/app/server
       - ${SERVARR_HOME}/tdarr/configs:/app/configs
