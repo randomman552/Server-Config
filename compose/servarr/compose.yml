@@ -188,11 +188,10 @@ services:
       - ${MEDIA_HOME}:/media
     labels:
       traefik.enable: true
-      traefik.http.services.bazarr.loadbalancer.server.port: 8265
-      traefik.http.routers.bazarr.rule: Host(`${TDARR_HOST}`)
-      traefik.http.routers.bazarr.entrypoints: https
-      traefik.http.routers.bazarr.middlewares: local-whitelist, authentik-forwardauth
-      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+      traefik.http.services.tdarr.loadbalancer.server.port: 8265
+      traefik.http.routers.tdarr.rule: Host(`${TDARR_HOST}`)
+      traefik.http.routers.tdarr.entrypoints: https
+      traefik.http.routers.tdarr.middlewares: local-whitelist
 
   # Content requests
   jellyseerr:
