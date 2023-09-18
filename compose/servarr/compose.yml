@@ -186,7 +186,7 @@ services:
       - ${SERVARR_HOME}/tdarr/server:/app/server
       - ${SERVARR_HOME}/tdarr/configs:/app/configs
       - ${SERVARR_HOME}/tdarr/logs:/app/logs
-      - ${SERVARR_HOME}/tdarr:/temp
+      - ${SERVARR_HOME}/tdarr/temp:/temp
       - ${MEDIA_HOME}:/media
     labels:
       traefik.enable: true
