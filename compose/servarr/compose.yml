@@ -20,7 +20,6 @@ services:
       traefik.http.routers.deluge.rule: Host(`${DELUGE_HOST}`)
       traefik.http.routers.deluge.entrypoints: https
       traefik.http.routers.deluge.middlewares: local-whitelist
-      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Deluge
       homepage.icon: deluge
@@ -49,7 +48,6 @@ services:
       traefik.http.routers.prowlarr.rule: Host(`${PROWLARR_HOST}`)
       traefik.http.routers.prowlarr.entrypoints: https
       traefik.http.routers.prowlarr.middlewares: local-whitelist, authentik-forwardauth
-      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Prowlarr
       homepage.icon: prowlarr
@@ -81,7 +79,6 @@ services:
       traefik.http.routers.sonarr.rule: Host(`${SONARR_HOST}`)
       traefik.http.routers.sonarr.entrypoints: https
       traefik.http.routers.sonarr.middlewares: local-whitelist, authentik-forwardauth
-      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Sonarr
       homepage.icon: sonarr
@@ -113,7 +110,6 @@ services:
       traefik.http.routers.radarr.rule: Host(`${RADARR_HOST}`)
       traefik.http.routers.radarr.entrypoints: https
       traefik.http.routers.radarr.middlewares: local-whitelist, authentik-forwardauth
-      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Radarr
       homepage.icon: radarr
@@ -145,7 +141,6 @@ services:
       traefik.http.routers.bazarr.rule: Host(`${BAZARR_HOST}`)
       traefik.http.routers.bazarr.entrypoints: https
       traefik.http.routers.bazarr.middlewares: local-whitelist, authentik-forwardauth
-      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Bazarr
       homepage.icon: bazarr
@@ -193,7 +188,7 @@ services:
       traefik.http.services.tdarr.loadbalancer.server.port: 8265
       traefik.http.routers.tdarr.rule: Host(`${TDARR_HOST}`)
       traefik.http.routers.tdarr.entrypoints: https
-      traefik.http.routers.tdarr.middlewares: local-whitelist
+      traefik.http.routers.tdarr.middlewares: local-whitelist, authentik-forwardauth
 
   # Content requests
   jellyseerr:
@@ -210,7 +205,6 @@ services:
       traefik.http.routers.jellyseerr.rule: Host(`${JELLYSEERR_HOST}`)
       traefik.http.routers.jellyseerr.entrypoints: https
       traefik.http.routers.jellyseerr.middlewares: local-whitelist
-      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
       homepage.group: Streaming
       homepage.name: Jellyseerr
       homepage.icon: jellyseerr
