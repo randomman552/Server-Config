@@ -5,6 +5,7 @@ services:
     container_name: vaultwarden
     restart: unless-stopped
     environment:
+      TZ: $TZ
       WEBSOCKET_ENABLED: true  # WebSocket notifications.
       SIGNUPS_ALLOWED: false
       DOMAIN: https://$VAULTWARDEN_HOST
