@@ -3,6 +3,8 @@ services:
   gotify-server:
     image: gotify/server
     restart: unless-stopped
+    environment:
+      TZ: $GOTIFY_TZ
     volumes:
       - ${GOTIFY_HOME}/data:/app/data
     labels:      
