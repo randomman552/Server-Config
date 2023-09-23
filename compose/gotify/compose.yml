@@ -1,0 +1,14 @@
+version: "3"
+services:
+  gotify-server:
+    image: gotify/server
+    restart: unless-stopped
+    volumes:
+      - ${GOTIFY_HOME}/data:/app/data
+    labels:      
+      traefik.enable: true
+      # Normal server traffic
+      traefik.http.services.authentik.loadbalancer.server.port: 9000
+      traefik.http.routers.authentik.rule: Host(`$AUTHENTIK_HOST`)
+      traefik.http.routers.authentik.entrypoints: https
+      traefik.http.routers.authentik.service: authentik
