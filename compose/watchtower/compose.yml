@@ -15,7 +15,7 @@ services:
 
       WATCHTOWER_NOTIFICATIONS: gotify
       WATCHTOWER_NOTIFICATIONS_GOTIFY_URL: https://$GOTIFY_HOST
-      WATCHTOWER_NOTIFICATIONS_GOTIFY_URL: $GOTIFY_TOKEN
+      WATCHTOWER_NOTIFICATIONS_GOTIFY_TOKEN: $GOTIFY_TOKEN
 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
