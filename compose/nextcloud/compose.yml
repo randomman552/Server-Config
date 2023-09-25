@@ -152,9 +152,9 @@ services:
   localai:
     image: quay.io/go-skynet/local-ai
     command:
-      - "--models-path /models"
-      - "--content-size 700"
-      - "--threads 4"
+      - ---models-path /models
+      - ---content-size 700
+      - ---threads 4
     volumes:
       - ${NEXTCLOUD_HOME}/localai-models:/models
       
