@@ -155,6 +155,6 @@ services:
       THREADS: 4
       MODELS_PATH: /models
       CONTENT_SIZE: 700
+      GALLERIES: '[{"name":"model-gallery", "url":"github:go-skynet/model-gallery/index.yaml"}]'
     volumes:
       - ${NEXTCLOUD_HOME}/localai-models:/models
-      
