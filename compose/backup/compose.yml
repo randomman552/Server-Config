@@ -21,7 +21,7 @@ services:
       RCLONE_CONFIG_B2_KEY: $B2_KEY
       RCLONE_CONFIG_B2_TYPE: b2
       # Global settings
-      RCLONE_TRANSFERS: 8
+      RCLONE_TRANSFERS: 4
       RCLONE_IGNORE_ERRORS: true
       RCLONE_IGNORE_SIZE: true
       RCLONE_IGNORE_CHECKSUM: true
