@@ -82,10 +82,9 @@ services:
     labels:
       traefik.enable: true
       traefik.http.services.firefly-importer.loadbalancer.server.port: 8080
-      traefik.http.routers.firefly-importer.rule: Host(`$FIREFLY_HOST`) && PathPrefix(`/import`)
+      traefik.http.routers.firefly-importer.rule: Host(`$FIREFLY_IMPORTER_HOST`)
       traefik.http.routers.firefly-importer.entrypoints: https
-      traefik.http.routers.firefly-importer.middlewares: local-whitelist, firefly-importer-strip-prefix
-      traefik.http.middlewares.firefly-importer-strip-prefix.stripprefix.prefixes: /import
+      traefik.http.routers.firefly-importer.middlewares: local-whitelist
 
   # Cron
   cron:
