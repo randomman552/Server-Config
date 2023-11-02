@@ -65,6 +65,27 @@ services:
       traefik.http.routers.firefly.entrypoints: https
       traefik.http.routers.firefly.middlewares: local-whitelist
 
+  # Firefly data importer
+  importer:
+    image: fireflyiii/data-importer:latest
+    hostname: importer
+    restart: unless-stopped
+    environment:
+      TZ: $TZ
+      TRUSTED_PROXIES: "**"
+      FIREFLY_III_URL: http://server:8080
+      VANITY_URL: https://$FIREFLY_HOST
+      ASSET_URL: /import
+    depends_on:
+      - server
+    labels:
+      traefik.enable: true
+      traefik.http.services.firefly.loadbalancer.server.port: 8080
+      traefik.http.routers.firefly.rule: Host(`$FIREFLY_HOST`) && PathPrefix(`/import`)
+      traefik.http.routers.firefly.entrypoints: https
+      traefik.http.routers.firefly.middlewares: local-whitelist
+      traefik.http.middlewares.firefly-importer-strip-prefix.stripprefix.prefixes: /import
+
   # Cron
   cron:
     image: alpine
