@@ -38,6 +38,10 @@ services:
     hostname: firefly
     restart: unless-stopped
     environment:
+      # App settings
+      TZ: $TZ
+      APP_URL: https://${FIREFLY_HOST:?FIREFLY_HOST required}
+      APP_KEY: $FIREFLY_APP_KEY
       # Database connection
       DB_CONNECTION: pgsql
       DB_HOST: postgres
@@ -49,8 +53,6 @@ services:
       ALLOW_WEBHOOKS: false
       # Cron settings
       STATIC_CRON_TOKEN: ${FIREFLY_CRON_TOKEN:?FIREFLY_CRON_TOKEN required}
-      # URL settings
-      APP_URL: https://${FIREFLY_HOST:?FIREFLY_HOST required}
     volumes:
       - ${FIREFLY_HOME:?FIREFLY_HOME required}/uploads:/var/www/html/storage/upload
     depends_on:
