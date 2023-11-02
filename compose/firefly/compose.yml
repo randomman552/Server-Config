@@ -42,7 +42,7 @@ services:
       TZ: $TZ
       APP_URL: https://${FIREFLY_HOST:?FIREFLY_HOST required}
       APP_KEY: ${FIREFLY_APP_KEY:?FIREFLY_APP_KEY required}
-      TRUSTED_PROXIES: $FIREFLY_TRUSTED_PROXIES
+      TRUSTED_PROXIES: **
       # Database connection
       DB_CONNECTION: pgsql
       DB_HOST: postgres
