@@ -11,9 +11,9 @@ services:
       retries: 5
       timeout: 5s
     environment:
-      POSTGRES_PASSWORD=${FIREFLY_PG_PASS:?Database password required}
-      POSTGRES_USER=${FIREFLY_PG_USER:?Database user required}
-      POSTGRES_DB=${FIREFLY_PG_DB:?:Database name required}
+      POSTGRES_PASSWORD: $FIREFLY_PG_PASS
+      POSTGRES_USER: $FIREFLY_PG_USER
+      POSTGRES_DB: $FIREFLY_PG_DB
     volumes:
       - ${FIREFLY_HOME}/postgres:/var/lib/postgresql/data
   
@@ -42,17 +42,17 @@ services:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_DATABASE: $FIREFLY_PG_DB
-      DB_USERNAME: $FIREFLY_PG_USER
-      DB_PASSWORD: $FIREFLY_PG_PASS
+      DB_DATABASE: ${FIREFLY_PG_DB:?FIREFLY_PG_DB required}
+      DB_USERNAME: ${FIREFLY_PG_USER:?FIREFLY_PG_USER required}
+      DB_PASSWORD: ${FIREFLY_PG_PASS:?FIREFLY_PG_PASS required}
       # Webhook settings
       ALLOW_WEBHOOKS: false
       # Cron settings
-      STATIC_CRON_TOKEN: $FIREFLY_CRON_TOKEN
+      STATIC_CRON_TOKEN: ${FIREFLY_CRON_TOKEN:?FIREFLY_CRON_TOKEN required}
       # URL settings
-      APP_URL: https://$FIREFLY_HOST
+      APP_URL: https://${FIREFLY_HOST:?FIREFLY_HOST required}
     volumes:
-      - ${FIREFLY_HOME}/uploads:/var/www/html/storage/upload
+      - ${FIREFLY_HOME:?FIREFLY_HOME required}/uploads:/var/www/html/storage/upload
     depends_on:
       - postgres
     labels:
