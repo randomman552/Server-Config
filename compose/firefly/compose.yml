@@ -75,6 +75,7 @@ services:
       TRUSTED_PROXIES: "**"
       FIREFLY_III_URL: http://server:8080
       VANITY_URL: https://$FIREFLY_HOST
+      FIREFLY_III_ACCESS_TOKEN: $FIREFLY_IMPORTER_ACCESS_TOKEN
       ASSET_URL: /import
     depends_on:
       - server
