@@ -1,0 +1,71 @@
+version: "3"
+services:
+  # Database
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    environment:
+      POSTGRES_PASSWORD: $FIREFLY_PG_PASS
+      POSTGRES_USER: $FIREFLY_PG_USER
+      POSTGRES_DB: $FIREFLY_PG_DB
+    volumes:
+      - ${FIREFLY_HOME}/postgres:/var/lib/postgresql/data
+  
+  # Database backups
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:alpine
+    restart: unless-stopped
+    user: postgres:postgres
+    environment:
+      POSTGRES_USER: $FIREFLY_PG_USER
+      POSTGRES_PASSWORD: $FIREFLY_PG_PASS
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: $FIREFLY_PG_DB
+    volumes:
+      - ${FIREFLY_HOME}/backups:/backups
+    depends_on:
+      - postgres
+
+  # Firefly
+  server:
+    image: fireflyiii/core
+    hostname: firefly
+    restart: unless-stopped
+    environment:
+      # Database connection
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${FIREFLY_PG_DB:?FIREFLY_PG_DB required}
+      DB_USERNAME: ${FIREFLY_PG_USER:?FIREFLY_PG_USER required}
+      DB_PASSWORD: ${FIREFLY_PG_PASS:?FIREFLY_PG_PASS required}
+      # Webhook settings
+      ALLOW_WEBHOOKS: false
+      # Cron settings
+      STATIC_CRON_TOKEN: ${FIREFLY_CRON_TOKEN:?FIREFLY_CRON_TOKEN required}
+      # URL settings
+      APP_URL: https://${FIREFLY_HOST:?FIREFLY_HOST required}
+    volumes:
+      - ${FIREFLY_HOME:?FIREFLY_HOME required}/uploads:/var/www/html/storage/upload
+    depends_on:
+      - postgres
+    labels:
+      traefik.enable: true
+      traefik.http.services.firefly.loadbalancer.server.port: 8080
+      traefik.http.routers.firefly.rule: Host(`$FIREFLY_HOST`)
+      traefik.http.routers.firefly.entrypoints: https
+      traefik.http.routers.firefly.middlewares: local-whitelist
+
+  # Cron
+  cron:
+    image: alpine
+    restart: unless-stopped
+    command: sh -c "echo \"0 3 * * * wget -qO- http://server:8080/api/v1/cron/${FIREFLY_CRON_TOKEN}\" | crontab - && crond -f -L /dev/stdout"
+    depends_on:
+      - server
