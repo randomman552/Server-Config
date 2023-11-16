@@ -4,14 +4,14 @@ services:
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
-    hostname: linux-server
+    hostname: ${HOSTNAME:-watchtower}
     restart: unless-stopped
     environment:
       TZ: Europe/London
 
       WATCHTOWER_CLEANUP: true
       WATCHTOWER_ROLLING_RESTART: true
-      WATCHTOWER_SCHEDULE: 0 0 4 * * *
+      WATCHTOWER_SCHEDULE: ${SCHEDULE:-0 0 4 * * *}
 
       WATCHTOWER_NOTIFICATIONS: gotify
       WATCHTOWER_NOTIFICATION_GOTIFY_URL: https://$GOTIFY_HOST
