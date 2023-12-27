@@ -34,16 +34,10 @@ services:
       CLOUDFLARE_EMAIL: $CLOUDFLARE_EMAIL
       CLOUDFLARE_DNS_API_TOKEN: $CLOUDFLARE_DNS_API_TOKEN
     volumes:
-      - ${CORE_HOME}/traefik/etc/traefik:/etc/traefik
+      - ${TRAEFIK_HOME}/etc:/etc/traefik
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       traefik.enable: true
-      # Cockpit management portal (works here as Traefik is network_mode: host)
-      traefik.http.services.cockpit.loadbalancer.server.port: 9090
-      traefik.http.routers.cockpit.rule: Host(`${COCKPIT_HOST}`)
-      traefik.http.routers.cockpit.entrypoints: https
-      traefik.http.routers.cockpit.service: cockpit
-      traefik.http.routers.cockpit.middlewares: local-whitelist@docker
       # Traefik dashboard router
       traefik.http.services.traefik.loadbalancer.server.port: 8080
       traefik.http.routers.traefik.rule: Host(`${TRAEFIK_HOST}`)
