@@ -55,7 +55,7 @@ services:
 
   # Portainer agent for remote management
   portainer-agent:
-    image: portainer/agent:2.19.4
+    image: portainer/agent:latest
     restart: always
     ports:
       - 9001:9001
