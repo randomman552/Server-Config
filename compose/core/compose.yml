@@ -59,62 +59,12 @@ services:
       # Local whitelist middleware
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
 
-
-  # Pi-Hole for local DNS resolution
-  pihole:
-    image: pihole/pihole:latest
-    container_name: pihole
-    environment:
-      VIRTUAL_HOST: $PIHOLE_HOST
-      WEBPASSWORD: $PIHOLE_TOKEN
-    ports:
-      - 192.168.0.100:53:53/tcp
-      - 192.168.0.100:53:53/udp
-    volumes:
-      - ${CORE_HOME}/pihole/pihole:/etc/pihole
-      - ${CORE_HOME}/pihole/dnsmasq.d:/etc/dnsmasq.d
-    depends_on:
-      - traefik
+  # Portainer agent for remote management
+  portainer-agent:
+    image: portainer/agent:2.19.4
     restart: always
-    labels:
-      traefik.enable: true
-      traefik.http.services.pihole.loadbalancer.server.port: 80
-      traefik.http.routers.pihole.rule: Host(`$PIHOLE_HOST`)
-      traefik.http.routers.pihole.entrypoints: https
-      traefik.http.routers.pihole.middlewares: local-whitelist@docker
-
-  pihole-exporter:
-    image: ekofr/pihole-exporter
-    restart: unless-stopped
-    environment:
-      PIHOLE_HOSTNAME: pihole
-      PIHOLE_PASSWORD: $PIHOLE_TOKEN
-    depends_on:
-      - pihole
-    labels:
-      traefik.enable: true
-      traefik.http.services.pihole-exporter.loadbalancer.server.port: 9617
-      traefik.http.routers.pihole-exporter.rule: Host(`$PIHOLE_HOST`) && PathPrefix(`/metrics`)
-      traefik.http.routers.pihole-exporter.entrypoints: https
-      traefik.http.routers.pihole-exporter.middlewares: local-whitelist@docker
-
-
-  # Portainer for docker container management
-  portainer:
-    image: portainer/portainer-ce:latest
-    container_name: portainer
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
+    ports:
+      - 9001:9001
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ${CORE_HOME}/portainer/data:/data
-    depends_on:
-      - traefik
-    labels:
-      traefik.enable: true
-      traefik.http.services.portainer.loadbalancer.server.port: 9000
-      traefik.http.routers.portainer.rule: Host(`$PORTAINER_HOST`)
-      traefik.http.routers.portainer.entrypoints: https
-      traefik.http.routers.portainer.middlewares: local-whitelist@docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes

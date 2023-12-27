@@ -1,0 +1,38 @@
+version: '3'
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    environment:
+      VIRTUAL_HOST: $PIHOLE_HOST
+      WEBPASSWORD: $PIHOLE_TOKEN
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+    volumes:
+      - ${PIHOLE_HOME}/pihole:/etc/pihole
+      - ${PIHOLE_HOME}/dnsmasq.d:/etc/dnsmasq.d
+    depends_on:
+      - traefik
+    restart: always
+    labels:
+      traefik.enable: true
+      traefik.http.services.pihole.loadbalancer.server.port: 80
+      traefik.http.routers.pihole.rule: Host(`$PIHOLE_HOST`)
+      traefik.http.routers.pihole.entrypoints: https
+      traefik.http.routers.pihole.middlewares: local-whitelist@docker
+
+  pihole-exporter:
+    image: ekofr/pihole-exporter
+    restart: unless-stopped
+    environment:
+      PIHOLE_HOSTNAME: pihole
+      PIHOLE_PASSWORD: $PIHOLE_TOKEN
+    depends_on:
+      - pihole
+    labels:
+      traefik.enable: true
+      traefik.http.services.pihole-exporter.loadbalancer.server.port: 9617
+      traefik.http.routers.pihole-exporter.rule: Host(`$PIHOLE_HOST`) && PathPrefix(`/metrics`)
+      traefik.http.routers.pihole-exporter.entrypoints: https
+      traefik.http.routers.pihole-exporter.middlewares: local-whitelist@docker

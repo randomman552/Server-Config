@@ -1,0 +1,21 @@
+version: '3'
+services:
+  # Portainer for docker container management
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${PORTAINER_HOME}/data:/data
+    depends_on:
+      - traefik
+    labels:
+      traefik.enable: true
+      traefik.http.services.portainer.loadbalancer.server.port: 9000
+      traefik.http.routers.portainer.rule: Host(`$PORTAINER_HOST`)
+      traefik.http.routers.portainer.entrypoints: https
+      traefik.http.routers.portainer.middlewares: local-whitelist@docker
