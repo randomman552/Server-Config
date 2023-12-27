@@ -12,8 +12,6 @@ services:
     volumes:
       - ${PIHOLE_HOME}/pihole:/etc/pihole
       - ${PIHOLE_HOME}/dnsmasq.d:/etc/dnsmasq.d
-    depends_on:
-      - traefik
     restart: always
     labels:
       traefik.enable: true
