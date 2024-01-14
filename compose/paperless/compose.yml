@@ -26,7 +26,7 @@ services:
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USER: $PAPERLESS_DB_USER
-      POSTGRES_PASSWORD: $PAPERLESS_DB_PASSWORD
+      POSTGRES_PASSWORD: $PAPERLESS_DB_PASS
       POSTGRES_DB: $PAPERLESS_DB
     volumes:
       - ${PAPERLESS_HOME}/backups:/backups
@@ -36,6 +36,7 @@ services:
   # Paperless instance
   server:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    user: ${PAPERLESS_UID:-1000}:${PAPERLESS_GID:-1000}
     restart: unless-stopped
     depends_on:
       - postgres
@@ -45,3 +46,19 @@ services:
       - ${PAPERLESS_HOME}/media:/usr/src/paperless/media
       - ${PAPERLESS_HOME}/export:/usr/src/paperless/export
       - ${PAPERLESS_HOME}/consume:/usr/src/paperless/consume
+    environment:
+      USERMAP_UID: ${PAPERLESS_UID:-1000}
+      USERMAP_GID: ${PAPERLESS_GID:-1000}
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPEERLESS_DBENGINE: postgresql
+      PAPERLESS_DBHOST: postgres
+      PAPERLESS_DBPORT: 5432
+      PAPERLESS_DBNAME: $PAPERLESS_DB
+      PAPERLESS_DBUSER: $PAPERLESS_DB_USER
+      PAPERLESS_DBPASS: $PAPERLESS_DB_PASS
+    labels:
+      traefik.enable: true
+      traefik.http.services.paperless.loadbalancer.server.port: 8000
+      traefik.http.routers.paperless.rule: Host(`$PAPERLESS_HOST`)
+      traefik.http.routers.paperless.entrypoints: https
+      traefik.http.routers.paperless.middlewares: local-whitelist
