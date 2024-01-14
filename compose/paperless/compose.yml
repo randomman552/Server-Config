@@ -56,6 +56,8 @@ services:
       PAPERLESS_DBNAME: $PAPERLESS_DB
       PAPERLESS_DBUSER: $PAPERLESS_DB_USER
       PAPERLESS_DBPASS: $PAPERLESS_DB_PASS
+      PAPERLESS_URL: https://$PAPERLESS_HOST
+      PAPERLESS_SECRET_KEY: $PAPERLESS_SECRET_KEY
     labels:
       traefik.enable: true
       traefik.http.services.paperless.loadbalancer.server.port: 8000
