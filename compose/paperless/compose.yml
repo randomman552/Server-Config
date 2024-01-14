@@ -1,0 +1,47 @@
+version: '3'
+services:
+  # Cache
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    volumes:
+      - ${PAPERLESS_HOME}/redis:/data
+
+  # Database
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    volumes:
+      - ${PAPERLESS_HOME}/postgres:/data
+    environment:
+      POSTGRES_DB: $PAPERLESS_DB
+      POSTGRES_USER: $PAPERLESS_DB_USER
+      POSTGRES_PASSWORD: $PAPERLESS_DB_PASSWORD
+  
+  # Periodic database backups
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:alpine
+    restart: unless-stopped
+    user: postgres:postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: $PAPERLESS_DB_USER
+      POSTGRES_PASSWORD: $PAPERLESS_DB_PASSWORD
+      POSTGRES_DB: $PAPERLESS_DB
+    volumes:
+      - ${PAPERLESS_HOME}/backups:/backups
+    depends_on:
+      - postgres
+
+  # Paperless instance
+  server:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ${PAPERLESS_HOME}/data:/usr/src/paperless/data
+      - ${PAPERLESS_HOME}/media:/usr/src/paperless/media
+      - ${PAPERLESS_HOME}/export:/usr/src/paperless/export
+      - ${PAPERLESS_HOME}/consume:/usr/src/paperless/consume
