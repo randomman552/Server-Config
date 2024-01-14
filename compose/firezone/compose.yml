@@ -61,7 +61,7 @@ services:
       traefik.http.services.firezone.loadbalancer.server.port: 13000
       traefik.http.routers.firezone.rule: Host(`$FIREZONE_HOST`)
       traefik.http.routers.firezone.entrypoints: https
-      traefi.http.routers.firezone.middlewares: local-whitelist, firezone-security
+      traefik.http.routers.firezone.middlewares: local-whitelist, firezone-security
       traefik.http.routers.firezone.tls: true
 
   postgres:
