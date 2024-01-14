@@ -16,7 +16,7 @@ services:
     environment:
       POSTGRES_DB: $PAPERLESS_DB
       POSTGRES_USER: $PAPERLESS_DB_USER
-      POSTGRES_PASSWORD: $PAPERLESS_DB_PASSWORD
+      POSTGRES_PASSWORD: $PAPERLESS_DB_PASS
   
   # Periodic database backups
   postgres-backup:
