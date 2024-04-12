@@ -46,23 +46,6 @@ services:
       DB_NAMES: $DATABASE_SCHEMA
       DB_DUMP_CRON: "0 0 * * *"
 
-  # Database
-  postgres:
-    image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: $POSTGRES_USER
-      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-      POSTGRES_DB: $POSTGRES_DB
-    volumes:
-      - $NEXTCLOUD_HOME/postgres:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "$$POSTGRES_DB" ]
-      interval: 30s
-      timeout: 60s
-      retries: 5
-      start_period: 80s
-
   # Redis for memcache
   redis:
     image: redis:alpine
