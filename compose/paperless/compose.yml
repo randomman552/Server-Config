@@ -83,7 +83,7 @@ services:
                 "provider_id": "authentik",
                 "name": "Authentik",
                 "client_id": "${AUTHENTIK_CLIENT_ID}",
-                "secret": "${AUTHENTIK_CLIENT_SECRET},
+                "secret": "${AUTHENTIK_CLIENT_SECRET}",
                 "settings": {
                   "server_url": "https://${AUTHENTIK_HOST}/application/o/${AUTHENTIK_CLIENT_SLUG}/.well-known/openid-configuration"
                 }
