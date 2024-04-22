@@ -2,7 +2,6 @@ version: "3"
 services:
   jellyfin:
     image: jellyfin/jellyfin
-    container_name: jellyfin
     user: ${JELLYFIN_UID:-1000}:${JELLYFIN_GID:-1000}
     environment:
       NVIDIA_DRIVER_CAPABILITIES: all
@@ -17,7 +16,7 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]
+              capabilities: [ gpu ]
     labels:
       traefik.enable: true
       # Middleware
@@ -36,18 +35,15 @@ services:
       traefik.http.routers.jellyfin.rule: Host(`${JELLYFIN_HOST}`)
       traefik.http.routers.jellyfin.entrypoints: https
       traefik.http.routers.jellyfin.middlewares: jellyfin-security
-      # Metrics service
-      traefik.http.services.jellyfin-metrics.loadbalancer.server.port: 8096
+
+  jellyfin-exporter:
+    image: randomman552/jellyfin-prometheus-exporter
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      JELLYFIN_API_KEY: $JELLYFIN_PROM_API_KEY
+    labels:
+      traefik.http.services.jellyfin-metrics.loadbalancer.server.port: 2112
       traefik.http.routers.jellyfin-metrics.service: jellyfin-metrics
       traefik.http.routers.jellyfin-metrics.rule: Host(`${JELLYFIN_HOST}`) && PathPrefix(`/metrics`)
       traefik.http.routers.jellyfin-metrics.entrypoints: https
       traefik.http.routers.jellyfin-metrics.middlewares: jellyfin-security, local-whitelist
-      # Homepage link
-      homepage.group: Streaming
-      homepage.name: Jellyfin
-      homepage.icon: jellyfin
-      homepage.description: Self-hosted media system
-      homepage.href: https://$JELLYFIN_HOST
-      homepage.widget.type: jellyfin
-      homepage.widget.url: https://$JELLYFIN_HOST
-      homepage.widget.key: $HOMEPAGE_API_KEY
