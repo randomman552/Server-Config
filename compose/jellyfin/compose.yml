@@ -39,7 +39,7 @@ services:
   jellyfin-exporter:
     image: randomman552/jellyfin-prometheus-exporter
     environment:
-      JELLYFIN_URL: http://jellyfin:8096
+      JELLYFIN_URL: https://$JELLYFIN_HOST
       JELLYFIN_API_KEY: $JELLYFIN_PROM_API_KEY
     labels:
       traefik.http.services.jellyfin-metrics.loadbalancer.server.port: 2112
