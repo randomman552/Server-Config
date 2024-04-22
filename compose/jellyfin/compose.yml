@@ -45,6 +45,7 @@ services:
     depends_on:
       - jellyfin
     labels:
+      traefik.enable: true
       traefik.http.services.jellyfin-metrics.loadbalancer.server.port: 2112
       traefik.http.routers.jellyfin-metrics.service: jellyfin-metrics
       traefik.http.routers.jellyfin-metrics.rule: Host(`${JELLYFIN_HOST}`) && PathPrefix(`/metrics`)
