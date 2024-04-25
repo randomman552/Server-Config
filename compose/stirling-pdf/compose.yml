@@ -1,0 +1,16 @@
+version: '3'
+services:
+  server:
+    image: frooodle/s-pdf:latest
+    restart: unless-stopped
+    environment:
+      DOCKER_ENABLE_SECURITY: false
+      INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
+      LANGS: en_GB
+    labels:
+      traefik.enable: true
+      # Traefik dashboard router
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
+      traefik.http.routers.traefik.rule: Host(`${STIRLING_HOST}`)
+      traefik.http.routers.traefik.entrypoints: https
+      traefik.http.routers.traefik.middlewares: local-whitelist@docker
