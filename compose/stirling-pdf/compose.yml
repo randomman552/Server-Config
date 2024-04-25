@@ -10,7 +10,7 @@ services:
     labels:
       traefik.enable: true
       # Traefik dashboard router
-      traefik.http.services.traefik.loadbalancer.server.port: 8080
-      traefik.http.routers.traefik.rule: Host(`${STIRLING_HOST}`)
-      traefik.http.routers.traefik.entrypoints: https
-      traefik.http.routers.traefik.middlewares: local-whitelist@docker
+      traefik.http.services.stirling-pdf.loadbalancer.server.port: 8080
+      traefik.http.routers.stirling-pdf.rule: Host(`${STIRLING_HOST}`)
+      traefik.http.routers.stirling-pdf.entrypoints: https
+      traefik.http.routers.stirling-pdf.middlewares: local-whitelist@docker
