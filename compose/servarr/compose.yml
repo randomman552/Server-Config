@@ -28,7 +28,7 @@ services:
       homepage.widget.type: deluge
       homepage.widget.url: https://$DELUGE_HOST
       homepage.widget.password: $DELUGE_PASSWORD
-  
+
   # Indexer manager
   prowlarr:
     image: linuxserver/prowlarr:nightly
@@ -118,7 +118,7 @@ services:
       homepage.widget.type: radarr
       homepage.widget.url: https://$RADARR_HOST
       homepage.widget.key: $RADARR_API_KEY
-      
+
   # Subtitles
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -154,13 +154,6 @@ services:
   tdarr:
     image: ghcr.io/haveagitgat/tdarr:latest
     restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
     expose:
       - 8265:8265
       - 8266:8266
@@ -175,8 +168,6 @@ services:
       internalNode: true
       inContainer: true
       nodeName: server-node
-      NVIDIA_DRIVER_CAPABILITIES: all
-      NVIDIA_VISIBLE_DEVICES: all
     volumes:
       - ${SERVARR_HOME}/tdarr/server:/app/server
       - ${SERVARR_HOME}/tdarr/configs:/app/configs
