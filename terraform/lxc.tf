@@ -11,6 +11,8 @@ resource "proxmox_lxc" "LXC" {
   memory = 512
   swap   = 1024
 
+  ssh_public_keys = var.ssh_public_keys
+
   network {
     name   = "eth0"
     bridge = "vmbr0"
