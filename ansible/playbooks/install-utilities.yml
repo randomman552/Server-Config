@@ -1,0 +1,13 @@
+- name: Install utilities
+  hosts: all
+
+  tasks:
+    - name: Install htop
+      ansible.builtin.apt:
+        name:
+          - htop
+
+    - name: Install btop
+      ansible.builtin.apt:
+        name:
+          - btop

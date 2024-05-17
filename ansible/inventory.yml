@@ -1,5 +1,8 @@
 servers:
   hosts:
+    config:
+      ansible_host: localhost
+      ssh_port: 22
     test:
       ansible_host: 192.168.0.99
       ssh_port: 22
