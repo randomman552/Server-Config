@@ -1,0 +1,11 @@
+# Install htop
+- name: Install HTOP
+  ansible.builtin.apt:
+    name:
+      - htop
+
+# Install btop
+- name: Install BTOP
+  ansible.builtin.apt:
+    name:
+      - btop

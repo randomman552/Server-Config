@@ -1,0 +1,5 @@
+- name: Include Utilities
+  ansible.builtin.include_tasks: 01-install-utilities.yml
+
+- name: Include RSync
+  ansible.builtin.include_tasks: 02-install-rsync.yml

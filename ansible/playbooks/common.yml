@@ -1,0 +1,4 @@
+- name: Perform common actions on all hosts
+  hosts: all
+  roles:
+    - common
