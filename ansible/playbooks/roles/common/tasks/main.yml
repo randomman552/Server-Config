@@ -3,3 +3,6 @@
 
 - name: Include RSync
   ansible.builtin.include_tasks: 02-install-rsync.yml
+
+- name: Include SSHD
+  ansible.builtin.include_tasks: 03-configure-sshd.yml
