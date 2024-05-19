@@ -1,0 +1,6 @@
+# Install sudo so commands using "become" work in LXCs as well
+- name: Install lxc utilities
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - sudo

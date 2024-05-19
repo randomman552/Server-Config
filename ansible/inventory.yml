@@ -1,8 +1,12 @@
-servers:
+lxcs:
   hosts:
     config:
       ansible_host: localhost
-      ssh_port: 22
     test:
       ansible_host: 192.168.0.99
-      ssh_port: 22
+
+vms:
+  hosts:
+    test-vm:
+      ansible_host: 192.168.0.98
+      ansible_user: ansible

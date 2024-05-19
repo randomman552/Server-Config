@@ -1,4 +1,9 @@
-- name: Perform common actions on all hosts
+- name: Common lxc configuration
+  hosts: lxcs
+  roles:
+    - lxc
+
+- name: Common configuration
   hosts: all
   roles:
     - common
