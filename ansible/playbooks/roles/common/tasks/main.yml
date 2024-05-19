@@ -1,8 +1,30 @@
-- name: Include Utilities
-  ansible.builtin.include_tasks: 01-install-utilities.yml
+# Install htop
+- name: Install utilities
+  ansible.builtin.apt:
+    name:
+      - htop
+      - btop
+      - rsync
 
-- name: Include RSync
-  ansible.builtin.include_tasks: 02-install-rsync.yml
+# Copy configuration
+- name: Copy rsync Config
+  ansible.builtin.copy:
+    mode: "0544"
+    src: rsyncd.conf
+    dest: /etc/rsyncd.conf
 
-- name: Include SSHD
-  ansible.builtin.include_tasks: 03-configure-sshd.yml
+# Ensure rsyncd is stopped by default
+- name: Stop and Disable rsync
+  ansible.builtin.service:
+    enabled: false
+    name: rsync
+    state: stopped
+
+# Configure sshd
+- name: Copy sshd Config
+  ansible.builtin.copy:
+    mode: "0544"
+    src: sshd_config
+    dest: /etc/ssh/sshd_config
+  notify:
+    - Restart SSHD

@@ -1,8 +1,0 @@
-# Configure sshd
-- name: Configure SSHD
-  ansible.builtin.copy:
-    mode: "0544"
-    src: sshd_config
-    dest: /etc/ssh/sshd_config
-  notify:
-    - Restart SSHD
