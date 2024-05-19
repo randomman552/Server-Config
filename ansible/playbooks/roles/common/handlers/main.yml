@@ -1,4 +1,8 @@
-- name: Restart SSHD
+- name: restart sshd
   ansible.builtin.service:
     state: restarted
     name: sshd
+
+- name: gen locale
+  ansible.builtin.command:
+    cmd: locale-gen
