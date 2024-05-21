@@ -1,12 +1,23 @@
-lxcs:
+all:
   hosts:
     config:
       ansible_host: localhost
-    test:
+    test-lxc:
       ansible_host: 192.168.0.99
-
-vms:
-  hosts:
     test-vm:
       ansible_host: 192.168.0.98
       ansible_user: ansible
+
+  children:
+    lxcs:
+      hosts:
+        config:
+        test-lxc:
+
+    vms:
+      hosts:
+        test-vm:
+
+    docker:
+      hosts:
+        test-vm:
