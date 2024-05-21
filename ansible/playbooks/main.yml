@@ -1,12 +1,12 @@
-# - name: Common lxc configuration
-#   hosts: lxcs
-#   roles:
-#     - lxc
+- name: Common lxc configuration
+  hosts: lxcs
+  roles:
+    - lxc
 
-# - name: Common configuration
-#   hosts: all
-#   roles:
-#     - common
+- name: Common configuration
+  hosts: all
+  roles:
+    - common
 
 - name: Docker
   hosts: docker
