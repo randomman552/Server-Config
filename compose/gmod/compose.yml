@@ -14,5 +14,5 @@ services:
       - 27015:27015
       - 27015:27015/udp
     volumes:
-      - ${GMOD_HOME:-/pool/games/gmod}/server:/server
-      - ${GMOD_HOME:-/pool/games/gmod}/mount:/mount
+      - ${GMOD_HOME}/server:/server
+      - ${GMOD_HOME}/mount:/mount
