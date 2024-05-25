@@ -12,3 +12,9 @@
   hosts: docker
   roles:
     - docker
+
+- name: Portainer agent
+  hosts: portainer_agent
+  roles:
+    - docker
+    - portainer-agent

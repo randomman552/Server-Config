@@ -1,23 +1,28 @@
 all:
   hosts:
-    config:
+    local:
       ansible_host: localhost
-    test-lxc:
-      ansible_host: 192.168.0.99
-    test-vm:
-      ansible_host: 192.168.0.98
+    game_server:
+      ansible_host: 192.168.0.50
       ansible_user: ansible
 
   children:
+    # LXC containers
     lxcs:
       hosts:
-        config:
-        test-lxc:
+        local:
 
+    # QEMU VMs
     vms:
       hosts:
-        test-vm:
+        game_server:
 
+    # Docker machines
     docker:
       hosts:
-        test-vm:
+        game_server:
+
+    # Install portainer agent
+    portainer_agent:
+      hosts:
+        game_server:
