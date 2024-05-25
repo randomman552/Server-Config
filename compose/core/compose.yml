@@ -51,13 +51,3 @@ services:
       traefik.http.routers.traefik-metrics.middlewares: local-whitelist@docker
       # Local whitelist middleware
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
-
-  # Portainer agent for remote management
-  portainer-agent:
-    image: portainer/agent:latest
-    restart: always
-    ports:
-      - 9001:9001
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/volumes:/var/lib/docker/volumes
