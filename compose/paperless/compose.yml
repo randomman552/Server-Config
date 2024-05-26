@@ -50,51 +50,51 @@ services:
       - postgres
 
   # Paperless instance
-  # server:
-  #   image: ghcr.io/paperless-ngx/paperless-ngx:latest
-  #   user: ${PAPERLESS_UID:-1000}:${PAPERLESS_GID:-1000}
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - postgres
-  #     - redis
-  #   volumes:
-  #     - ${PAPERLESS_HOME}/data:/usr/src/paperless/data
-  #     - ${PAPERLESS_HOME}/media:/usr/src/paperless/media
-  #     - ${PAPERLESS_HOME}/export:/usr/src/paperless/export
-  #     - ${PAPERLESS_HOME}/consume:/usr/src/paperless/consume
-  #   environment:
-  #     USERMAP_UID: ${PAPERLESS_UID:-1000}
-  #     USERMAP_GID: ${PAPERLESS_GID:-1000}
-  #     PAPERLESS_REDIS: redis://redis:6379
-  #     PAPEERLESS_DBENGINE: postgresql
-  #     PAPERLESS_DBHOST: postgres
-  #     PAPERLESS_DBPORT: 5432
-  #     PAPERLESS_DBNAME: $PAPERLESS_DB
-  #     PAPERLESS_DBUSER: $PAPERLESS_DB_USER
-  #     PAPERLESS_DBPASS: $PAPERLESS_DB_PASS
-  #     PAPERLESS_URL: https://$PAPERLESS_HOST
-  #     PAPERLESS_SECRET_KEY: $PAPERLESS_SECRET_KEY
-  #     PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
-  #     PAPERLESS_SOCIALACCOUNT_PROVIDERS: |
-  #       {
-  #         "openid_connect": {
-  #           "APPS": [
-  #             {
-  #               "provider_id": "authentik",
-  #               "name": "Authentik",
-  #               "client_id": "${AUTHENTIK_CLIENT_ID}",
-  #               "secret": "${AUTHENTIK_CLIENT_SECRET}",
-  #               "settings": {
-  #                 "server_url": "https://${AUTHENTIK_HOST}/application/o/${AUTHENTIK_CLIENT_SLUG}/.well-known/openid-configuration"
-  #               }
-  #             }
-  #           ],
-  #           "OAUTH_PKCE_ENABLED": "True"
-  #         }
-  #       }
-  #   labels:
-  #     traefik.enable: true
-  #     traefik.http.services.paperless.loadbalancer.server.port: 8000
-  #     traefik.http.routers.paperless.rule: Host(`$PAPERLESS_HOST`)
-  #     traefik.http.routers.paperless.entrypoints: https
-  #     traefik.http.routers.paperless.middlewares: local-whitelist
+  server:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    user: ${PAPERLESS_UID:-1000}:${PAPERLESS_GID:-1000}
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ${PAPERLESS_HOME}/data:/usr/src/paperless/data
+      - ${PAPERLESS_HOME}/media:/usr/src/paperless/media
+      - ${PAPERLESS_HOME}/export:/usr/src/paperless/export
+      - ${PAPERLESS_HOME}/consume:/usr/src/paperless/consume
+    environment:
+      USERMAP_UID: ${PAPERLESS_UID:-1000}
+      USERMAP_GID: ${PAPERLESS_GID:-1000}
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPEERLESS_DBENGINE: postgresql
+      PAPERLESS_DBHOST: postgres
+      PAPERLESS_DBPORT: 5432
+      PAPERLESS_DBNAME: $PAPERLESS_DB
+      PAPERLESS_DBUSER: $PAPERLESS_DB_USER
+      PAPERLESS_DBPASS: $PAPERLESS_DB_PASS
+      PAPERLESS_URL: https://$PAPERLESS_HOST
+      PAPERLESS_SECRET_KEY: $PAPERLESS_SECRET_KEY
+      PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
+      PAPERLESS_SOCIALACCOUNT_PROVIDERS: |
+        {
+          "openid_connect": {
+            "APPS": [
+              {
+                "provider_id": "authentik",
+                "name": "Authentik",
+                "client_id": "${AUTHENTIK_CLIENT_ID}",
+                "secret": "${AUTHENTIK_CLIENT_SECRET}",
+                "settings": {
+                  "server_url": "https://${AUTHENTIK_HOST}/application/o/${AUTHENTIK_CLIENT_SLUG}/.well-known/openid-configuration"
+                }
+              }
+            ],
+            "OAUTH_PKCE_ENABLED": "True"
+          }
+        }
+    labels:
+      traefik.enable: true
+      traefik.http.services.paperless.loadbalancer.server.port: 8000
+      traefik.http.routers.paperless.rule: Host(`$PAPERLESS_HOST`)
+      traefik.http.routers.paperless.entrypoints: https
+      traefik.http.routers.paperless.middlewares: local-whitelist
