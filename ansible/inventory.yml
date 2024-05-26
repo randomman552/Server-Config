@@ -3,7 +3,10 @@ all:
     local:
       ansible_host: localhost
     game_server:
-      ansible_host: 192.168.0.50
+      ansible_host: gameserver.ggrainger.uk
+      ansible_user: ansible
+    document_server:
+      ansible_host: documents.ggrainger.uk
       ansible_user: ansible
 
   children:
@@ -20,9 +23,9 @@ all:
     # Docker machines
     docker:
       hosts:
-        game_server:
 
     # Install portainer agent
     portainer_agent:
       hosts:
         game_server:
+        document_server:
