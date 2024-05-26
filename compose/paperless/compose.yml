@@ -35,19 +35,19 @@ services:
       POSTGRES_PASSWORD: $PAPERLESS_DB_PASS
 
   # Periodic database backups
-  # postgres-backup:
-  #   image: prodrigestivill/postgres-backup-local:alpine
-  #   restart: unless-stopped
-  #   user: postgres:postgres
-  #   environment:
-  #     POSTGRES_HOST: postgres
-  #     POSTGRES_USER: $PAPERLESS_DB_USER
-  #     POSTGRES_PASSWORD: $PAPERLESS_DB_PASS
-  #     POSTGRES_DB: $PAPERLESS_DB
-  #   volumes:
-  #     - ${PAPERLESS_HOME}/backups:/backups
-  #   depends_on:
-  #     - postgres
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:alpine
+    restart: unless-stopped
+    user: postgres:postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: $PAPERLESS_DB_USER
+      POSTGRES_PASSWORD: $PAPERLESS_DB_PASS
+      POSTGRES_DB: $PAPERLESS_DB
+    volumes:
+      - ${PAPERLESS_HOME}/backups:/backups
+    depends_on:
+      - postgres
 
   # Paperless instance
   # server:
