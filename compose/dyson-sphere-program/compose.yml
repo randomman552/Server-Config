@@ -1,0 +1,9 @@
+version: "3"
+services:
+  server:
+    image: ghcr.io/whykickamoocow/dsp-docker-server
+    ports: 
+      - 8469:8469
+    volumes:
+      - ${DSP_HOME}/game:/game
+      - ${DSP_HOME}/save:/save
