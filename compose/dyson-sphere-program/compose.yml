@@ -7,6 +7,7 @@ services:
     command:
       - ${STEAM_USERNAME}
       - ${STEAM_PASSWORD}
+      - ${STEAM_MFA}
     volumes:
       - ${DSP_HOME}/game:/game
       - ${DSP_HOME}/save:/save
