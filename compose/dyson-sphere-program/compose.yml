@@ -4,6 +4,9 @@ services:
     image: ghcr.io/whykickamoocow/dsp-docker-server:master
     ports: 
       - 8469:8469
+    command:
+      - ${STEAM_USERNAME}
+      - ${STEAM_PASSWORD}
     volumes:
       - ${DSP_HOME}/game:/game
       - ${DSP_HOME}/save:/save
