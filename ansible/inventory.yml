@@ -29,3 +29,8 @@ all:
       hosts:
         game_server:
         document_server:
+
+    watchtower:
+      hosts:
+        game_server:
+        document_server:

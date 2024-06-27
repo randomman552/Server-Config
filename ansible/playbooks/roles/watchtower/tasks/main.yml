@@ -1,0 +1,21 @@
+# Install watchtower
+- name: Install watchtower
+  become: true
+  community.docker.docker_container:
+    name: watchtower
+    pull: always
+    restart_policy: always
+    image: containrrr/watchtower
+    hostname: "{{ inventory_hostname }}"
+    env:
+      TZ: "{{ watchtower_timezone }}"
+
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_ROLLING_RESTART: "true"
+      WATCHTOWER_SCHEDULE: "{{ watchtower_schedule }}"
+
+      WATCHTOWER_NOTIFICATIONS: "gotify"
+      WATCHTOWER_NOTIFICATION_GOTIFY_URL: "https://{{ watchtower_gotify_host }}"
+      WATCHTOWER_NOTIFICATION_GOTIFY_TOKEN: "{{ watchtower_gotify_token }}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
