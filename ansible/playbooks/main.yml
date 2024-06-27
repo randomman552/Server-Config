@@ -16,11 +16,9 @@
 - name: Portainer agent
   hosts: portainer_agent
   roles:
-    - docker
     - portainer-agent
 
 - name: Watchtower
   hosts: watchtower
   roles:
-    - docker
     - watchtower
