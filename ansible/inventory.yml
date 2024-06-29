@@ -8,6 +8,9 @@ all:
     document_server:
       ansible_host: documents.ggrainger.uk
       ansible_user: ansible
+    monitoring_server:
+      ansible_host: monitoring.ggrainger.uk
+      ansible_user: ansible
 
   children:
     # LXC containers
@@ -19,6 +22,8 @@ all:
     vms:
       hosts:
         game_server:
+        document_server:
+        monitoring_server:
 
     # Docker machines
     docker:
@@ -29,8 +34,10 @@ all:
       hosts:
         game_server:
         document_server:
+        monitoring_server:
 
     watchtower:
       hosts:
         game_server:
         document_server:
+        monitoring_server:
