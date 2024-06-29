@@ -41,3 +41,8 @@ all:
         game_server:
         document_server:
         monitoring_server:
+
+    traefik:
+      hosts:
+        document_server:
+        monitoring_server:

@@ -22,3 +22,8 @@
   hosts: watchtower
   roles:
     - watchtower
+
+- name: Traefik
+  hosts: traefik
+  roles:
+    - traefik

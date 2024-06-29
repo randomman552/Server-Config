@@ -1,0 +1,49 @@
+- name: Install Traefik
+  become: true
+  community.docker.docker_container:
+    name: traefik
+    pull: always
+    restart_policy: always
+    image: traefik:latest
+    network_mode: host
+    command:
+      # Add docker as a provider
+      - --providers.docker.watch=true
+      - --providers.docker.exposedbydefault=false
+      # Enable API dashboard
+      - --api.dashboard=true
+      # Certificate Resolver
+      - --certificatesresolvers.letsencrypt.acme.email={{ traefik_cloudflare_email }}
+      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      # HTTP entrypoint just re-directs to https
+      - --entrypoints.http.address=:80
+      - --entrypoints.http.http.redirections.entrypoint.to=https
+      - --entrypoints.http.http.redirections.entrypoint.scheme=https
+      # HTTPS entrypoint
+      - --entrypoints.https.address=:443
+      - --entrypoints.https.http.tls=true
+      - --entrypoints.https.http.tls.certResolver=letsencrypt
+      - --entrypoints.https.http.tls.domains[0].main={{ traefik_cloudflare_domain }}
+      - --entrypoints.https.http.tls.domains[0].sans=*.{{ traefik_cloudflare_domain }}
+      # Metrics
+      - --metrics.prometheus=true
+      - --metrics.prometheus.manualrouting=true
+    env:
+      TZ: "{{ traefik_timezone }}"
+      CLOUDFLARE_EMAIL: "{{ traefik_cloudflare_email }}"
+      CLOUDFLARE_DNS_API_TOKEN: "{{ traefik_cloudflare_dns_api_token }}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ traefik_home }}/etc:/etc/traefik"
+    labels:
+      traefik.enable: "true"
+      # Traefik dashboard router
+      traefik.http.services.traefik.loadbalancer.server.port: "8080"
+      traefik.http.routers.traefik.rule: "Host(`traefik.{{ ansible_host }}`)"
+      traefik.http.routers.traefik.entrypoints: "https"
+      traefik.http.routers.traefik.service: "api@internal"
+      traefik.http.routers.traefik.middlewares: "local-whitelist@docker"
+      # Local whitelist middleware
+      traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16"
