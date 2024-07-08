@@ -21,8 +21,6 @@ services:
       traefik.http.services.drone.loadbalancer.server.port: 80
       traefik.http.routers.drone.rule: Host(`$DRONE_HOST`)
       traefik.http.routers.drone.entrypoints: https
-      homepage.group: Tools
-      homepage.name: Drone
-      homepage.icon: drone
-      homepage.description: Self-hosted CI Runner
-      homepage.href: https://$DRONE_HOST
+      traefik.http.routers.drone.middlewares: drone-noindex
+      # Middleware to block search indexing
+      traefik.http.middlewares.drone-noindex.headers.customresponseheaders.X-Robots-Tag: noindex
