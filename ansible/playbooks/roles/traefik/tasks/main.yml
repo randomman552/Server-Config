@@ -6,6 +6,7 @@
     restart_policy: always
     image: traefik:latest
     network_mode: host
+    privileged: true
     command:
       # Add docker as a provider
       - --providers.docker.watch=true

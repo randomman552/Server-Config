@@ -7,6 +7,7 @@
     restart_policy: always
     image: containrrr/watchtower
     hostname: "{{ inventory_hostname }}"
+    privileged: true
     env:
       TZ: "{{ watchtower_timezone }}"
 

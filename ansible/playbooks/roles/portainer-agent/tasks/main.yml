@@ -6,6 +6,7 @@
     pull: always
     restart_policy: always
     image: portainer/agent:latest
+    privileged: true
     ports:
       - 9001:9001
     volumes:
