@@ -11,6 +11,9 @@ all:
     monitoring_server:
       ansible_host: monitoring.ggrainger.uk
       ansible_user: ansible
+    backup_server:
+      ansible_host: pbs.ggrainger.uk
+      ansible_user: ansible
 
   children:
     # LXC containers
@@ -35,14 +38,17 @@ all:
         game_server:
         document_server:
         monitoring_server:
+        backup_server:
 
     watchtower:
       hosts:
         game_server:
         document_server:
         monitoring_server:
+        backup_server:
 
     traefik:
       hosts:
         document_server:
         monitoring_server:
+        backup_server:
