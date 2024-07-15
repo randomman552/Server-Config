@@ -21,7 +21,7 @@ services:
       RCLONE_CONFIG_B2_KEY: $B2_KEY
       RCLONE_CONFIG_B2_TYPE: b2
       # Global settings
-      RCLONE_TRANSFERS: 4
+      RCLONE_TRANSFERS: 8
       RCLONE_IGNORE_ERRORS: true
       RCLONE_IGNORE_SIZE: true
       RCLONE_IGNORE_CHECKSUM: true
@@ -37,10 +37,3 @@ services:
       traefik.http.routers.rclone.rule: Host(`${RCLONE_HOST}`) && Path(`/metrics`)
       traefik.http.routers.rclone.entrypoints: https
       traefik.http.routers.rclone.middlewares: local-whitelist
-      
-      # Add to homepage
-      homepage.group: Management
-      homepage.name: Rclone
-      homepage.icon: rclone
-      homepage.description: Backup Provider
-      homepage.href: https://$RCLONE_HOST
