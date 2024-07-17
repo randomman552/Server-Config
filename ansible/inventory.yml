@@ -11,6 +11,9 @@ all:
     monitoring_server:
       ansible_host: monitoring.ggrainger.uk
       ansible_user: ansible
+    portainer_server:
+      ansible_host: portainer.ggrainger.uk
+      ansible_user: ansible
     ci_runner_server:
       ansible_host: ci-runner.ggrainger.uk
       ansible_user: ansible
@@ -31,6 +34,7 @@ all:
         document_server:
         monitoring_server:
         ci_runner_server:
+        portainer_server:
 
     # Docker machines
     docker:
@@ -51,6 +55,7 @@ all:
         monitoring_server:
         backup_server:
         ci_runner_server:
+        portainer_server:
 
     traefik:
       hosts:
@@ -61,3 +66,7 @@ all:
     drone_runner:
       hosts:
         ci_runner_server:
+
+    portainer:
+      hosts:
+        portainer_server:

@@ -1,0 +1,19 @@
+- name: Install Portainer
+  become: true
+  community.docker.docker_container:
+    name: portainer
+    pull: always
+    restart_policy: always
+    image: portainer/portainer-ce:latest
+    security_opts:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ portainer_home }}/data:/data"
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.portainer.loadbalancer.server.port: "9000"
+      traefik.http.routers.portainer.rule: Host(`{{ portainer_host }}`)
+      traefik.http.routers.portainer.entrypoints: https
+      traefik.http.routers.portainer.middlewares: local-whitelist@docker

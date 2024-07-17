@@ -32,3 +32,8 @@
   hosts: drone_runner
   roles:
     - drone-runner
+
+- name: Portainer
+  hosts: portainer
+  roles:
+    - portainer
