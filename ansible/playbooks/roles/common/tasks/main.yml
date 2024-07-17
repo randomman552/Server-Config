@@ -6,6 +6,7 @@
       - htop
       - btop
       - rsync
+      - dnsutils
 
 # Gen locale
 - name: Configure locale-gen
