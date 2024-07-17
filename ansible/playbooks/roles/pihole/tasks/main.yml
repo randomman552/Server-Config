@@ -1,0 +1,29 @@
+- name: Disable Stub Resolver
+  become: true
+  ansible.builtin.systemd_service:
+    name: systemd-resolved
+    enabled: false
+    state: stopped
+
+- name: Install Pihole
+  become: true
+  community.docker.docker_container:
+    name: pihole
+    pull: always
+    restart_policy: always
+    image: pihole/pihole:latest
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+    env:
+      VIRTUAL_HOST: "{{ pihole_host }}"
+      WEBPASSWORD: "{{ pihole_token }}"
+    volumes:
+      - "{{ pihole_home }}/pihole:/etc/pihole"
+      - "{{ pihole_home }}/dnsmasq.d:/etc/dnsmasq.d"
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.pihole.loadbalancer.server.port: "80"
+      traefik.http.routers.pihole.rule: "Host(`{{ pihole_host }}`)"
+      traefik.http.routers.pihole.entrypoints: "https"
+      traefik.http.routers.pihole.middlewares: "local-whitelist@docker"

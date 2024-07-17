@@ -37,3 +37,8 @@
   hosts: portainer
   roles:
     - portainer
+
+- name: PiHole
+  hosts: pihole
+  roles:
+    - pihole

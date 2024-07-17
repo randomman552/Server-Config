@@ -14,6 +14,9 @@ all:
     portainer_server:
       ansible_host: portainer.ggrainger.uk
       ansible_user: ansible
+    pihole_server:
+      ansible_host: pihole.ggrainger.uk
+      ansible_user: ansible
     ci_runner_server:
       ansible_host: ci-runner.ggrainger.uk
       ansible_user: ansible
@@ -35,6 +38,7 @@ all:
         monitoring_server:
         ci_runner_server:
         portainer_server:
+        pihole_server:
 
     # Docker machines
     docker:
@@ -56,6 +60,7 @@ all:
         backup_server:
         ci_runner_server:
         portainer_server:
+        pihole_server:
 
     traefik:
       hosts:
@@ -70,3 +75,7 @@ all:
     portainer:
       hosts:
         portainer_server:
+
+    pihole:
+      hosts:
+        pihole_server:
