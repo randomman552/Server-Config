@@ -1,0 +1,15 @@
+- name: Install CI Runner
+  become: true
+  community.docker.docker_container:
+    name: drone-runner
+    pull: always
+    restart_policy: always
+    image: drone/drone-runner-docker:latest
+    env:
+      DRONE_RPC_PROTO: "{{ drone_rpc_protocol }}"
+      DRONE_RPC_HOST: "{{ drone_rpc_host }}"
+      DRONE_RPC_SECRET: "{{ drone_rpc_secret }}"
+      DRONE_RUNNER_NAME: "{{ drone_runner_name }}"
+      DRONE_RUNNER_CAPACITY: "2"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
