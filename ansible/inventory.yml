@@ -17,6 +17,9 @@ all:
     pihole_server:
       ansible_host: pihole.ggrainger.uk
       ansible_user: ansible
+    vpn_server:
+      ansible_host: vpn.ggrainger.uk
+      ansible_user: ansible
     ci_runner_server:
       ansible_host: ci-runner.ggrainger.uk
       ansible_user: ansible
@@ -39,6 +42,7 @@ all:
         ci_runner_server:
         portainer_server:
         pihole_server:
+        vpn_server:
 
     # Docker machines
     docker:
@@ -51,6 +55,7 @@ all:
         document_server:
         monitoring_server:
         backup_server:
+        vpn_server:
 
     watchtower:
       hosts:
@@ -61,12 +66,14 @@ all:
         ci_runner_server:
         portainer_server:
         pihole_server:
+        vpn_server:
 
     traefik:
       hosts:
         document_server:
         monitoring_server:
         backup_server:
+        vpn_server:
 
     drone_runner:
       hosts:
