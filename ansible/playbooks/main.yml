@@ -42,3 +42,8 @@
   hosts: pihole
   roles:
     - pihole
+
+- name: Gateway
+  hosts: gateway
+  roles:
+    - gateway
