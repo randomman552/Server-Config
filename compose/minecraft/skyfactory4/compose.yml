@@ -1,6 +1,6 @@
 services:
   server:
-    image: itzg/minecraft-server:java8-multiarch
+    image: itzg/minecraft-server:java17
     user: 1600:1600
     restart: unless-stopped
     ports:
