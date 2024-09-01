@@ -14,4 +14,4 @@ services:
       MAX_MEMORY: 8G
       ENABLE_ROLLING_LOGS: true
     volumes:
-      - /data/minecraft/oceanblock:/data
+      - /data/minecraft/skyfactory4:/data
