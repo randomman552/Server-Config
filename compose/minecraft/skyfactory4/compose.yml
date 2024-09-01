@@ -13,5 +13,6 @@ services:
       INIT_MEMORY: 1G
       MAX_MEMORY: 8G
       ENABLE_ROLLING_LOGS: true
+      CREATE_CONSOLE_IN_PIPE: true
     volumes:
       - /data/minecraft/skyfactory4:/data
