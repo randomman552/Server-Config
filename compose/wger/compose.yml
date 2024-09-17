@@ -95,6 +95,22 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  # Periodic database backups
+  db-backup:
+    image: prodrigestivill/postgres-backup-local:alpine
+    restart: unless-stopped
+    user: postgres:postgres
+    environment:
+      POSTGRES_USER: $DJANGO_DB_USER
+      POSTGRES_PASSWORD: $DJANGO_DB_PASSWORD
+      POSTGRES_HOST: db
+      POSTGRES_DB: $DJANGO_DB_DATABASE
+    volumes:
+      - ${WGER_PATH}/postgres-backup:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+
   # Cache
   cache:
     image: redis
