@@ -3,10 +3,11 @@ services:
   server:
     container_name: satisfactory-server
     image: wolveix/satisfactory-server:latest
-    ports:
-      - 7777:7777/udp
-      - 15000:15000/udp
-      - 15777:15777/udp
+    network_mode: host
+    # ports:
+    #   - 7777:7777/udp
+    #   - 15000:15000/udp
+    #   - 15777:15777/udp
     volumes:
       - $SATISFACTORY_PATH/config:/config
     environment:
