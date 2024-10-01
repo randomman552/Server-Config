@@ -48,27 +48,17 @@ all:
         vpn_server:
         gateway_server:
 
-    # Docker machines
-    docker:
-      hosts:
-
     # Install portainer agent
     portainer_agent:
       hosts:
         game_server:
-        document_server:
         monitoring_server:
         backup_server:
         vpn_server:
 
-    gateway:
-      hosts:
-        gateway_server:
-
     watchtower:
       hosts:
         game_server:
-        document_server:
         monitoring_server:
         backup_server:
         ci_runner_server:
@@ -79,19 +69,6 @@ all:
 
     traefik:
       hosts:
-        document_server:
         monitoring_server:
         backup_server:
         vpn_server:
-
-    drone_runner:
-      hosts:
-        ci_runner_server:
-
-    portainer:
-      hosts:
-        portainer_server:
-
-    pihole:
-      hosts:
-        pihole_server:

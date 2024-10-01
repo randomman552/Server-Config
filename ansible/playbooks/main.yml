@@ -29,21 +29,26 @@
     - traefik
 
 - name: Drone Runner
-  hosts: drone_runner
+  hosts: ci_runner_server
   roles:
     - drone-runner
 
 - name: Portainer
-  hosts: portainer
+  hosts: portainer_server
   roles:
     - portainer
 
 - name: PiHole
-  hosts: pihole
+  hosts: pihole_server
   roles:
     - pihole
 
 - name: Gateway
-  hosts: gateway
+  hosts: gateway_server
   roles:
     - gateway
+
+- name: Documents Server
+  hosts: document_server
+  roles:
+    - documents
