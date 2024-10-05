@@ -28,7 +28,6 @@ services:
       RCLONE_IGNORE_SIZE: true
       RCLONE_IGNORE_CHECKSUM: true
       RCLONE_DELETE_EXCLUDED: true
-      RCLONE_FILTER_FROM: $BACKUP_FILTER_FROM
     volumes:
       - $DATA_PATH:/data:ro
     command: rcd  --rc-addr :${RCLONE_PORT} --rc-no-auth --rc-enable-metrics
