@@ -3,6 +3,9 @@ services:
   scheduler:
     image: randomman552/rclone-scheduler
     restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
     environment:
       RCLONE_PROTOCOL: http
       RCLONE_HOST: server
