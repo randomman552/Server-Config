@@ -11,7 +11,7 @@ services:
     volumes:
       - $SATISFACTORY_PATH/config:/config
     environment:
-      MAXPLAYERS: 4
+      MAXPLAYERS: 64
       PGID: $SATISFACTORY_PID
       PUID: $SATISFACTORY_UID
       STEAMBETA: false
