@@ -4,7 +4,6 @@ services:
     image: randomman552/barotrauma:latest
     container_name: barotrauma
     restart: unless-stopped
-    user: 1600:1600
     ports:
       - 27015:27015/udp
       - 27016:27016/udp
