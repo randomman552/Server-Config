@@ -1,6 +1,7 @@
 version: '3'
 services:
   server:
+    user: $SATISFACTORY_UID:SATISFACTORY_GID
     container_name: satisfactory-server
     image: wolveix/satisfactory-server:latest
     ports:
@@ -13,7 +14,7 @@ services:
     environment:
       MAXPLAYERS: 64
       ROOTLESS: true
-      PGID: $SATISFACTORY_PID
+      PGID: $SATISFACTORY_GID
       PUID: $SATISFACTORY_UID
       STEAMBETA: false
     restart: unless-stopped
