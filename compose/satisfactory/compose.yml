@@ -13,7 +13,7 @@ services:
       - $SATISFACTORY_PATH/config:/config
     environment:
       MAXPLAYERS: 64
-      ROOTLESS: true
+      ROOTLESS: false
       PGID: $SATISFACTORY_GID
       PUID: $SATISFACTORY_UID
       STEAMBETA: false
