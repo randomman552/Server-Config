@@ -13,6 +13,8 @@ services:
       MYSQL_ROOT_PASSWORD: $DATABASE_ROOT_PASSWORD
     volumes:
       - ${NEXTCLOUD_HOME}/db:/var/lib/mysql
+    ports:
+      - 3306:3306
     healthcheck:
       test:
         [
@@ -42,10 +44,12 @@ services:
       timeout: 5s
     volumes:
       - ${NEXTCLOUD_HOME}/postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
     environment:
-      - POSTGRES_PASSWORD=$DATABASE_PASSWORD
-      - POSTGRES_USER=$DATABASE_USER
-      - POSTGRES_DB=$DATABASE_SCHEMA
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_USER: $DATABASE_USER
+      POSTGRES_DB: $DATABASE_SCHEMA
 
   # Database backup
   db-backup:
