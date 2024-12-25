@@ -16,3 +16,8 @@ services:
       VERSION: 1.20.1
     volumes:
       - $MINECRAFT_HOME/data:/data
+    labels:
+      traefik.enable: true
+      traefik.http.services.minecraft-bluemap.loadbalancer.server.port: 8123
+      traefik.http.routers.minecraft-bluemap.rule: Host(`minecraft-map.ggrainger.uk`)
+      traefik.http.routers.minecraft-bluemap.entrypoints: https
