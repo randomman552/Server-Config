@@ -69,6 +69,7 @@ all:
 
     traefik:
       hosts:
+        game_server:
         monitoring_server:
         backup_server:
         vpn_server:
