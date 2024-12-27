@@ -1,0 +1,136 @@
+- name: Install Authentik Server
+  become: true
+  community.docker.docker_compose_v2:
+    project_name: authentik
+    definition:
+      services:
+        # Authentik database and cache
+        postgres:
+          image: docker.io/library/postgres:12-alpine
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+            start_period: 20s
+            interval: 30s
+            retries: 5
+            timeout: 5s
+          volumes:
+            - "{{ authentik_home }}/postgres:/var/lib/postgresql/data"
+          environment:
+            POSTGRES_PASSWORD: "{{ authentik_pg_pass }}"
+            POSTGRES_USER: "{{ authentik_pg_user }}"
+            POSTGRES_DB: "{{ authentik_pg_db }}"
+        # Periodic database backups
+        postgres-backup:
+          image: prodrigestivill/postgres-backup-local:alpine
+          restart: unless-stopped
+          user: postgres:postgres
+          environment:
+            POSTGRES_HOST: postgres
+            POSTGRES_USER: "{{ authentik_pg_user }}"
+            POSTGRES_PASSWORD: "{{ authentik_pg_pass }}"
+            POSTGRES_DB: "{{ authentik_pg_db }}"
+          volumes:
+            - "{{ authentik_home }}/backups:/backups"
+          depends_on:
+            - postgres
+        # Redis cache
+        redis:
+          image: docker.io/library/redis:alpine
+          command: --save 60 1 --loglevel warning
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+            start_period: 20s
+            interval: 30s
+            retries: 5
+            timeout: 3s
+          volumes:
+            - "{{ authentik_home }}/redis:/data"
+        # Authentik server and worker
+        server:
+          image: "ghcr.io/goauthentik/server:{{ authentik_tag }}"
+          restart: unless-stopped
+          command: server
+          depends_on:
+            - postgres
+            - redis
+          ports:
+            - 9000:9000
+          environment:
+            AUTHENTIK_ERROR_REPORTING__ENABLED: true
+            AUTHENTIK_SECRET_KEY: "{{ authentik_secret_key }}"
+            AUTHENTIK_COOKIE_DOMAIN: "{{ authentik_cookie_domain }}"
+            # Connection settings
+            AUTHENTIK_REDIS__HOST: redis
+            AUTHENTIK_POSTGRESQL__HOST: postgres
+            AUTHENTIK_POSTGRESQL__USER: "{{ authentik_pg_user }}"
+            AUTHENTIK_POSTGRESQL__NAME: "{{ authentik_pg_db }}"
+            AUTHENTIK_POSTGRESQL__PASSWORD: "{{ authentik_pg_pass }}"
+            # Email settings
+            AUTHENTIK_EMAIL__HOST: "{{ authentik_email_host }}"
+            AUTHENTIK_EMAIL__PORT: "{{ authentik_email_port }}"
+            AUTHENTIK_EMAIL__USERNAME: "{{ authentik_email_username }}"
+            AUTHENTIK_EMAIL__PASSWORD: "{{ authentik_email_password }}"
+            AUTHENTIK_EMAIL__FROM: "{{ authentik_email_from }}"
+            AUTHENTIK_EMAIL__USE_TLS: true
+          volumes:
+            - "{{ authentik_home }}/media:/media"
+            - "{{ authentik_home }}/custom-templates:/templates"
+          labels:
+            traefik.enable: true
+            # Normal server traffic
+            traefik.http.services.authentik.loadbalancer.server.port: 9000
+            traefik.http.routers.authentik.rule: Host(`{{ authentik_host }}`)
+            traefik.http.routers.authentik.entrypoints: https
+            traefik.http.routers.authentik.service: authentik
+            # Embedded proxy outpost
+            traefik.http.services.authentik-proxy-outpost.loadbalancer.server.port: 9000
+            traefik.http.routers.authentik-proxy-outpost.rule: |
+              HostRegexp(`{subdomain:[a-z0-9-]+}.{{ authentik_cookie_domain }}`) && PathPrefix(`/outpost.goauthentik.io/`)
+            traefik.http.routers.authentik-proxy-outpost.entrypoints: https
+            traefik.http.routers.authentik-proxy-outpost.service: authentik-proxy-outpost
+            # Metrics
+            traefik.http.services.authentik-metrics.loadbalancer.server.port: 9300
+            traefik.http.routers.authentik-metrics.rule: Host(`{{ authentik_host }}`) && PathPrefix(`/metrics`)
+            traefik.http.routers.authentik-metrics.middlewares: local-whitelist
+            traefik.http.routers.authentik-metrics.entrypoints: https
+            traefik.http.routers.authentik-metrics.service: authentik-metrics
+
+        worker:
+          image: "ghcr.io/goauthentik/server:{{ authentik_tag }}"
+          restart: unless-stopped
+          command: worker
+          depends_on:
+            - postgres
+            - redis
+            - server
+          environment:
+            AUTHENTIK_ERROR_REPORTING__ENABLED: true
+            AUTHENTIK_SECRET_KEY: "{{ authentik_secret_key }}"
+            AUTHENTIK_COOKIE_DOMAIN: "{{ authentik_cookie_domain }}"
+            # Connection settings
+            AUTHENTIK_REDIS__HOST: redis
+            AUTHENTIK_POSTGRESQL__HOST: postgres
+            AUTHENTIK_POSTGRESQL__USER: "{{ authentik_pg_user }}"
+            AUTHENTIK_POSTGRESQL__NAME: "{{ authentik_pg_db }}"
+            AUTHENTIK_POSTGRESQL__PASSWORD: "{{ authentik_pg_pass }}"
+            # Email settings
+            AUTHENTIK_EMAIL__HOST: "{{ authentik_email_host }}"
+            AUTHENTIK_EMAIL__PORT: "{{ authentik_email_port }}"
+            AUTHENTIK_EMAIL__USERNAME: "{{ authentik_email_username }}"
+            AUTHENTIK_EMAIL__PASSWORD: "{{ authentik_email_password }}"
+            AUTHENTIK_EMAIL__FROM: "{{ authentik_email_from }}"
+            AUTHENTIK_EMAIL__USE_TLS: true
+          # `user: root` and the docker socket volume are optional.
+          # See more for the docker socket integration here:
+          # https://goauthentik.io/docs/outposts/integrations/docker
+          # Removing `user: root` also prevents the worker from fixing the permissions
+          # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
+          # (1000:1000 by default)
+          user: root
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - "{{ authentik_home }}/media:/media"
+            - "{{ authentik_home }}/certs:/certs"
+            - "{{ authentik_home }}/custom-templates:/templates"

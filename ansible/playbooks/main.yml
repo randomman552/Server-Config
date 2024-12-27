@@ -28,11 +28,6 @@
   roles:
     - traefik
 
-- name: Drone Runner
-  hosts: ci_runner_server
-  roles:
-    - drone-runner
-
 - name: Portainer
   hosts: portainer_server
   roles:
@@ -43,6 +38,11 @@
   roles:
     - pihole
 
+- name: Drone Runner
+  hosts: ci_runner_server
+  roles:
+    - drone-runner
+
 - name: Gateway
   hosts: gateway_server
   roles:
@@ -52,3 +52,8 @@
   hosts: document_server
   roles:
     - documents
+
+- name: Auth Server
+  hosts: auth_server
+  roles:
+    - authentik

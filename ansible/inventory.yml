@@ -32,6 +32,9 @@ all:
     git_server:
       ansible_host: git.ggrainger.uk
       ansible_user: ansible
+    auth_server:
+      ansible_host: auth.ggrainger.uk
+      ansible_user: ansible
 
   children:
     # LXC containers
@@ -51,6 +54,7 @@ all:
         vpn_server:
         gateway_server:
         git_server:
+        auth_server:
 
     # Install portainer agent
     portainer_agent:
@@ -73,6 +77,7 @@ all:
         vpn_server:
         gateway_server:
         git_server:
+        auth_server:
 
     traefik:
       hosts:
@@ -81,3 +86,4 @@ all:
         backup_server:
         vpn_server:
         git_server:
+        auth_server:
