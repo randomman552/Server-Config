@@ -48,3 +48,8 @@
       traefik.http.routers.traefik.middlewares: "local-whitelist@docker"
       # Local whitelist middleware
       traefik.http.middlewares.local-whitelist.ipwhitelist.sourcerange: "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16"
+      # Authentik forward-auth middleware
+      traefik.http.middlewares.authentik-forwardauth.forwardauth.address: http://{{ traefik_authentik_domain }}:9000/outpost.goauthentik.io/auth/traefik
+      traefik.http.middlewares.authentik-forwardauth.forwardauth.trustForwardHeader: "true"
+      traefik.http.middlewares.authentik-forwardauth.forwardauth.authResponseHeaders: |
+        X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version
