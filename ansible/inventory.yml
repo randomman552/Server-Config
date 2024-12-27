@@ -55,6 +55,7 @@ all:
         monitoring_server:
         backup_server:
         vpn_server:
+        gateway_server:
 
     watchtower:
       hosts:
