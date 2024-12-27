@@ -1,0 +1,8 @@
+services:
+  one-pager:
+    image: randomman552/one-pager:latest
+    container_name: one-pager
+    hostname: $HOST
+    restart: unless-stopped
+    ports:
+      - 5001:80
