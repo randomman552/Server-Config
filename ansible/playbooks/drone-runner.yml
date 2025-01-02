@@ -1,0 +1,4 @@
+- name: Drone Runner
+  hosts: ci_runner_server
+  roles:
+    - drone-runner

@@ -1,0 +1,4 @@
+- name: PiHole
+  hosts: pihole_server
+  roles:
+    - pihole

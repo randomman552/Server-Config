@@ -1,0 +1,24 @@
+- name: Common lxc configuration
+  hosts: lxcs
+  roles:
+    - lxc
+
+- name: Common configuration
+  hosts: all
+  roles:
+    - common
+
+- name: Docker
+  hosts: docker
+  roles:
+    - docker
+
+- name: Watchtower
+  hosts: watchtower
+  roles:
+    - watchtower
+
+- name: Traefik
+  hosts: traefik
+  roles:
+    - traefik

@@ -1,0 +1,4 @@
+- name: Documents Server
+  hosts: document_server
+  roles:
+    - documents

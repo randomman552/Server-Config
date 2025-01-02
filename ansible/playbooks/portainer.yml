@@ -1,0 +1,9 @@
+- name: Portainer
+  hosts: portainer_server
+  roles:
+    - portainer
+
+- name: Portainer agent
+  hosts: portainer_agent
+  roles:
+    - portainer-agent

@@ -1,0 +1,4 @@
+- name: Auth Server
+  hosts: auth_server
+  roles:
+    - authentik
