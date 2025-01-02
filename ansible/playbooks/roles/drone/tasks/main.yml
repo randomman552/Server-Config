@@ -1,0 +1,30 @@
+- name: Install drone
+  become: true
+  community.docker.docker_compose_v2:
+    project_name: drone
+    definition:
+      services:
+        server:
+          image: drone/drone
+          restart: unless-stopped
+          environment:
+            # DRONE_GITEA_SERVER: "https://{{ drone_gitea_server }}"
+            # DRONE_GITEA_CLIENT_ID: "{{ drone_gitea_client_id }}"
+            # DRONE_GITEA_CLIENT_SECRET: "{{ drone_gitea_client_secret }}"
+            DRONE_GITHUB_CLIENT_ID: "{{ drone_github_client_id }}"
+            DRONE_GITHUB_CLIENT_SECRET: "{{ drone_github_client_secret }}"
+            DRONE_USER_FILTER: "{{ drone_user_filter }}"
+            DRONE_USER_CREATE: "{{ drone_user_create }}"
+            DRONE_RPC_SECRET: "{{ drone_rpc_secret }}"
+            DRONE_SERVER_HOST: "{{ drone_host }}"
+            DRONE_SERVER_PROTO: https
+          volumes:
+            - "{{ drone_path }}/data:/data"
+          labels:
+            traefik.enable: true
+            traefik.http.services.drone.loadbalancer.server.port: 80
+            traefik.http.routers.drone.rule: Host(`{{ drone_host }}`)
+            traefik.http.routers.drone.entrypoints: https
+            traefik.http.routers.drone.middlewares: drone-noindex
+            # Middleware to block search indexing
+            traefik.http.middlewares.drone-noindex.headers.customresponseheaders.X-Robots-Tag: noindex
