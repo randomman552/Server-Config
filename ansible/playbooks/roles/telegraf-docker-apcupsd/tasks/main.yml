@@ -1,0 +1,12 @@
+# Install watchtower
+- name: Install telegraf
+  become: true
+  community.docker.docker_container:
+    name: telegraf-apcupsd
+    pull: always
+    restart_policy: always
+    image: telegraf:alpine
+    hostname: "{{ inventory_hostname }}"
+    env:
+      INFLUX_TOKEN: "{{ telegraf_influx_token }}"
+    command: "--config {{ telegraf_influx_config_url }}"

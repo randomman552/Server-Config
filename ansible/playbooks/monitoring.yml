@@ -1,0 +1,4 @@
+- name: Monitoring server
+  hosts: monitoring_server
+  roles:
+    - telegraf-docker-apcupsd

@@ -1,0 +1,4 @@
+- name: apcupsd
+  hosts: apcupsd
+  roles:
+    - telegraf

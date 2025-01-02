@@ -56,7 +56,7 @@ all:
         git_server:
         auth_server:
 
-    # Install portainer agent
+    # Portainer agent
     portainer_agent:
       hosts:
         game_server:
@@ -66,6 +66,7 @@ all:
         gateway_server:
         git_server:
 
+    # Watchtower docker updates
     watchtower:
       hosts:
         game_server:
@@ -79,6 +80,7 @@ all:
         git_server:
         auth_server:
 
+    # Traefik reverse proxy
     traefik:
       hosts:
         game_server:
@@ -87,3 +89,8 @@ all:
         vpn_server:
         git_server:
         auth_server:
+
+    # APC UPS Monitoring Daemon (apcupsd)
+    apcupsd:
+      hosts:
+        backup_server:
