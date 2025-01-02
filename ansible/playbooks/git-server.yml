@@ -1,0 +1,4 @@
+- name: Install gitea
+  hosts: git_server
+  roles:
+    - gitea
