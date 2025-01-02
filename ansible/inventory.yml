@@ -64,7 +64,6 @@ all:
         backup_server:
         vpn_server:
         gateway_server:
-        git_server:
 
     # Watchtower docker updates
     watchtower:
