@@ -7,18 +7,3 @@
   hosts: all
   roles:
     - common
-
-- name: Docker
-  hosts: docker
-  roles:
-    - docker
-
-- name: Watchtower
-  hosts: watchtower
-  roles:
-    - watchtower
-
-- name: Traefik
-  hosts: traefik
-  roles:
-    - traefik
