@@ -1,0 +1,175 @@
+- name: Install nextcloud
+  become: true
+  community.docker.docker_compose_v2:
+    project_name: nextcloud
+    definition:
+      services:
+        # MySQL database
+        db:
+          image: mysql:8.0
+          command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+          restart: unless-stopped
+          environment:
+            MYSQL_USER: "{{ nextcloud_database_username }}"
+            MYSQL_PASSWORD: "{{ nextcloud_database_password }}"
+            MYSQL_DATABASE: "{{ nextcloud_database_database }}"
+          volumes:
+            - "{{ nextcloud_home }}/db:/var/lib/mysql"
+          ports:
+            - 3306:3306
+          healthcheck:
+            test:
+              [
+                "CMD",
+                'mysqladmin',
+                'ping',
+                '-h',
+                'localhost',
+                '-u',
+                '$$MYSQL_USER',
+                '--password=$$MYSQL_PASSWORD'
+              ]
+            interval: 5s
+            timeout: 5s
+            start_period: 5s
+            retries: 5
+
+        # Postgres database
+        postgres:
+          image: docker.io/library/postgres:17-alpine
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+            start_period: 20s
+            interval: 30s
+            retries: 5
+            timeout: 5s
+          volumes:
+            - "{{ nextcloud_home }}/postgres:/var/lib/postgresql/data"
+          ports:
+            - 5432:5432
+          environment:
+            POSTGRES_USER: "{{ nextcloud_database_username }}"
+            POSTGRES_PASSWORD: "{{ nextcloud_database_password }}"
+            POSTGRES_DB: "{{ nextcloud_database_database }}"
+
+        # Database backup
+        db-backup:
+          image: databack/mysql-backup
+          restart: unless-stopped
+          volumes:
+            - "{{ nextcloud_home }}/backup:/backup"
+          depends_on:
+            - db
+          environment:
+            DB_SERVER: db
+            DB_USER: root
+            DB_PASS: "{{ nextcloud_database_root_password }}"
+            POSTGRES_DB: "{{ nextcloud_database_database }}"
+            DB_DUMP_CRON: "0 0 * * *"
+
+        # Redis for memcache
+        redis:
+          image: redis:alpine
+          restart: unless-stopped
+          healthcheck:
+            test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+            start_period: 20s
+            interval: 30s
+            retries: 5
+            timeout: 3s
+
+        # Nextcloud application
+        nextcloud:
+          image: randomman552/nextcloud-ffmpeg:stable-apache
+          restart: unless-stopped
+          volumes:
+            - "{{ nextcloud_home }}/html:/var/www/html"
+            - "{{ nextcloud_home }}/data:/nextcloud-data"
+          environment:
+            MYSQL_DATABASE: "{{ nextcloud_database_database }}"
+            MYSQL_USER: "{{ nextcloud_database_username }}"
+            MYSQL_PASSWORD: "{{ nextcloud_database_password }}"
+            MYSQL_HOST: db
+            REDIS_HOST: redis
+          depends_on:
+            - db
+            - redis
+          labels:
+            traefik.enable: true
+            # Middleware
+            traefik.http.middlewares.nextcloud-headers.headers.stsSeconds: 15552000
+            traefik.http.middlewares.nextcloud-headers.headers.stsPreload: true
+            traefik.http.middlewares.nextcloud-headers.headers.stsIncludeSubdomains: true
+            traefik.http.middlewares.nextcloud-webfinger.redirectregex.regex: https://(.*)/.well-known/(card|cal)dav
+            traefik.http.middlewares.nextcloud-webfinger.redirectregex.replacement: https://$${1}/remote.php/dav/
+            # Service
+            traefik.http.services.nextcloud.loadbalancer.server.port: 80
+            traefik.http.routers.nextcloud.rule: Host(`{{ nextcloud_host }}`)
+            traefik.http.routers.nextcloud.entrypoints: https
+            traefik.http.routers.nextcloud.middlewares: nextcloud-headers, nextcloud-webfinger
+
+        # Cron to execute periodic tasks on nextcloud
+        cron:
+          image: randomman552/nextcloud-ffmpeg:stable-apache
+          restart: unless-stopped
+          entrypoint: /cron.sh
+          volumes:
+            - "{{ nextcloud_home }}/html:/var/www/html"
+            - "{{ nextcloud_home }}/data:/nextcloud-data"
+          environment:
+            MYSQL_DATABASE: "{{ nextcloud_database_database }}"
+            MYSQL_USER: "{{ nextcloud_database_username }}"
+            MYSQL_PASSWORD: "{{ nextcloud_database_password }}"
+            MYSQL_HOST: db
+            REDIS_HOST: redis
+          depends_on:
+            - db
+            - redis
+
+        # Prometheus exporter
+        nextcloud-exporter:
+          image: xperimental/nextcloud-exporter
+          restart: unless-stopped
+          environment:
+            NEXTCLOUD_SERVER: "https://{{ nextcloud_host }}"
+            NEXTCLOUD_AUTH_TOKEN: "{{ nextcloud_metrics_token }}"
+          depends_on:
+            - nextcloud
+          labels:
+            traefik.enable: true
+            traefik.http.services.nextcloud-metrics.loadbalancer.server.port: 9205
+            traefik.http.routers.nextcloud-metrics.rule: Host(`{{ nextcloud_host }}`) && PathPrefix(`/metrics`)
+            traefik.http.routers.nextcloud-metrics.entrypoints: https
+            traefik.http.routers.nextcloud-metrics.middlewares: local-whitelist, nextcloud-headers
+
+        # Collabora
+        collabora:
+          image: collabora/code
+          restart: unless-stopped
+          environment:
+            username: "{{ nextcloud_collabora_username }}"
+            password: "{{ nextcloud_collabora_password }}"
+            server_name: "{{ nextcloud_collabora_host }}"
+            domain: "{{ nextcloud_host }}"
+            dictionaries: en_GB
+            extra_params: --o:ssl.enable=false --o:ssl.termination=true
+          cap_add:
+            - MKNOD
+          labels:
+            traefik.enable: true
+            traefik.http.services.collabora.loadbalancer.server.port: 9980
+            traefik.http.routers.collabora.rule: Host(`{{ nextcloud_collabora_host }}`)
+            traefik.http.routers.collabora.entrypoints: https
+
+        # Draw.io integration
+        drawio:
+          image: jgraph/drawio
+          restart: unless-stopped
+          environment:
+            VIRTUAL_HOST: "{{ nextcloud_drawio_host }}"
+          labels:
+            traefik.enable: true
+            traefik.http.services.drawio.loadbalancer.server.port: 8080
+            traefik.http.routers.drawio.rule: Host(`{{ nextcloud_drawio_host }}`)
+            traefik.http.routers.drawio.entrypoints: https

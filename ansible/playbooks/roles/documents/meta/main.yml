@@ -1,5 +1,0 @@
-dependencies:
-  - traefik
-  - watchtower
-  - docker
-  - portainer-agent

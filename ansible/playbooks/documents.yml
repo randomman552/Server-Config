@@ -1,4 +1,4 @@
-- name: Documents Server
+- name: Install Nextcloud
   hosts: document_server
   roles:
-    - documents
+    - nextcloud
