@@ -1,0 +1,19 @@
+# Install jellyfin prometheus metrics provider
+- name: Jellyfin metrics server
+  become: true
+  community.docker.docker_container:
+    image: randomman552/jellyfin-prometheus-exporter
+    name: jellyfin-metrics
+    pull: always
+    restart_policy: unless-stopped
+    hostname: "{{ inventory_hostname }}"
+    env:
+      JELLYFIN_URL: "https://{{ jellyfin_host }}"
+      JELLYFIN_API_KEY: "{{ jellyfin_api_key }}"
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.jellyfin-metrics.loadbalancer.server.port: "2112"
+      traefik.http.routers.jellyfin-metrics.service: jellyfin-metrics
+      traefik.http.routers.jellyfin-metrics.rule: Host(`{{ jellyfin_host }}`) && PathPrefix(`/metrics`)
+      traefik.http.routers.jellyfin-metrics.entrypoints: https
+      traefik.http.routers.jellyfin-metrics.middlewares: local-whitelist
