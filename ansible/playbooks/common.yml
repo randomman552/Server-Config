@@ -7,3 +7,8 @@
   hosts: all
   roles:
     - common
+
+- name: Nvidia Drivers
+  hosts: nvidia
+  roles:
+    - nvidia-drivers

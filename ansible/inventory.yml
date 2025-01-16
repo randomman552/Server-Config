@@ -4,6 +4,9 @@ all:
       ansible_host: localhost
     media_server:
       ansible_host: media.ggrainger.uk
+    hypervisor_server:
+      ansible_host: pve.ggrainger.uk
+      ansible_user: ansible
     game_server:
       ansible_host: gameserver.ggrainger.uk
       ansible_user: ansible
@@ -85,7 +88,8 @@ all:
         git_server:
         auth_server:
 
-    # APC UPS Monitoring Daemon (apcupsd)
-    apcupsd:
+    # Nvidia drivers
+    nvidia:
       hosts:
-        backup_server:
+        media_server:
+        hypervisor_server:
