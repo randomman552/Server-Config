@@ -2,6 +2,8 @@ all:
   hosts:
     local:
       ansible_host: localhost
+    media_server:
+      ansible_host: media.ggrainger.uk
     game_server:
       ansible_host: gameserver.ggrainger.uk
       ansible_user: ansible
@@ -38,6 +40,7 @@ all:
     lxcs:
       hosts:
         local:
+        media_server:
 
     # QEMU VMs
     vms:
