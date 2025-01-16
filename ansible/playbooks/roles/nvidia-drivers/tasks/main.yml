@@ -38,7 +38,9 @@
   become: true
   ansible.builtin.apt:
     update_cache: true
-    name: nvidia-driver
+    name:
+      - nvidia-driver
+      - nvidia-detect
     state: present
   notify:
     - Reboot system
