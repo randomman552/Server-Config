@@ -4,6 +4,7 @@ all:
       ansible_host: localhost
     media_server:
       ansible_host: media.ggrainger.uk
+      ansible_user: ansible
     hypervisor_server:
       ansible_host: pve.ggrainger.uk
       ansible_user: ansible
@@ -43,7 +44,6 @@ all:
     lxcs:
       hosts:
         local:
-        media_server:
 
     # QEMU VMs
     vms:
@@ -87,8 +87,3 @@ all:
         backup_server:
         git_server:
         auth_server:
-
-    # Nvidia drivers
-    nvidia:
-      hosts:
-        media_server:
