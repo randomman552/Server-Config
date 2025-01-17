@@ -92,4 +92,3 @@ all:
     nvidia:
       hosts:
         media_server:
-        hypervisor_server:
