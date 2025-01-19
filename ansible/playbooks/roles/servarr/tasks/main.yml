@@ -1,0 +1,132 @@
+- name: Install servarr stack
+  become: true
+  community.docker.docker_compose_v2:
+    project_name: servarr
+    remove_orphans: true
+    definition:
+      services:
+        # Torrent
+        deluge:
+          image: linuxserver/deluge:latest
+          container_name: servarr-deluge
+          restart: unless-stopped
+          environment:
+            PUID: "{{ servarr_puid }}"
+            PGID: "{{ servarr_pgid }}"
+            UMASK: "{{ servarr_umask }}"
+            TZ: "{{ servarr_timezone }}"
+            PASSWORD: "{{ servarr_deluge_password }}"
+          volumes:
+            - "{{ servarr_home }}/deluge/config:/config"
+            - "{{ servarr_media_home }}/downloads:/media/downloads"
+          labels:
+            traefik.enable: "true"
+            traefik.http.services.deluge.loadbalancer.server.port: 8112
+            traefik.http.routers.deluge.rule: Host(`deluge.{{ servarr_domain }}`)
+            traefik.http.routers.deluge.entrypoints: https
+            traefik.http.routers.deluge.middlewares: local-whitelist
+
+        # Indexer manager
+        prowlarr:
+          image: linuxserver/prowlarr:nightly
+          container_name: servarr-prowlarr
+          restart: unless-stopped
+          environment:
+            PUID: "{{ servarr_puid }}"
+            PGID: "{{ servarr_pgid }}"
+            UMASK: "{{ servarr_umask }}"
+            TZ: "{{ servarr_timezone }}"
+          volumes:
+            - "{{ servarr_home }}/prowlarr/config:/config"
+            - "{{ servarr_media_home }}:/media"
+          labels:
+            traefik.enable: "true"
+            traefik.http.services.prowlarr.loadbalancer.server.port: 9696
+            traefik.http.routers.prowlarr.rule: Host(`prowlarr.{{ servarr_domain }}`)
+            traefik.http.routers.prowlarr.entrypoints: https
+            traefik.http.routers.prowlarr.middlewares: local-whitelist, authentik-forwardauth
+
+        # Shows
+        sonarr:
+          image: linuxserver/sonarr:latest
+          container_name: servarr-sonarr
+          restart: unless-stopped
+          environment:
+            PUID: "{{ servarr_puid }}"
+            PGID: "{{ servarr_pgid }}"
+            UMASK: "{{ servarr_umask }}"
+            TZ: "{{ servarr_timezone }}"
+          volumes:
+            - "{{ servarr_home }}/sonarr/config:/config"
+            - "{{ servarr_media_home }}:/media"
+          depends_on:
+            - deluge
+            - prowlarr
+          labels:
+            traefik.enable: "true"
+            traefik.http.services.sonarr.loadbalancer.server.port: 8989
+            traefik.http.routers.sonarr.rule: Host(`sonarr.{{ servarr_domain }}`)
+            traefik.http.routers.sonarr.entrypoints: https
+            traefik.http.routers.sonarr.middlewares: local-whitelist, authentik-forwardauth
+
+        # Movies
+        radarr:
+          image: linuxserver/radarr:latest
+          container_name: servarr-radarr
+          restart: unless-stopped
+          environment:
+            PUID: "{{ servarr_puid }}"
+            PGID: "{{ servarr_pgid }}"
+            UMASK: "{{ servarr_umask }}"
+            TZ: "{{ servarr_timezone }}"
+          volumes:
+            - "{{ servarr_home }}/radarr/config:/config"
+            - "{{ servarr_media_home }}:/media"
+          depends_on:
+            - deluge
+            - prowlarr
+          labels:
+            traefik.enable: "true"
+            traefik.http.services.radarr.loadbalancer.server.port: 7878
+            traefik.http.routers.radarr.rule: Host(`radarr.{{ servarr_domain }}`)
+            traefik.http.routers.radarr.entrypoints: https
+            traefik.http.routers.radarr.middlewares: local-whitelist, authentik-forwardauth
+
+        # Subtitles
+        bazarr:
+          image: lscr.io/linuxserver/bazarr:latest
+          container_name: servarr-bazarr
+          restart: unless-stopped
+          environment:
+            PUID: "{{ servarr_puid }}"
+            PGID: "{{ servarr_pgid }}"
+            UMASK: "{{ servarr_umask }}"
+            TZ: "{{ servarr_timezone }}"
+          volumes:
+            - "{{ servarr_home }}/bazarr/config:/config"
+            - "{{ servarr_media_home }}:/media"
+          depends_on:
+            - radarr
+            - sonarr
+          labels:
+            traefik.enable: "true"
+            traefik.http.services.bazarr.loadbalancer.server.port: 6767
+            traefik.http.routers.bazarr.rule: Host(`bazarr.{{ servarr_domain }}`)
+            traefik.http.routers.bazarr.entrypoints: https
+            traefik.http.routers.bazarr.middlewares: local-whitelist, authentik-forwardauth
+
+        # Content requests
+        jellyseerr:
+          image: fallenbagel/jellyseerr:latest
+          container_name: servarr-jellyseerr
+          restart: unless-stopped
+          environment:
+            TZ: "{{ servarr_timezone }}"
+          volumes:
+            - "{{ servarr_home }}/jellyseerr/config:/app/config"
+          labels:
+            traefik.enable: "true"
+            traefik.http.services.jellyseerr.loadbalancer.server.port: 5055
+            traefik.http.routers.jellyseerr.rule: Host(`jellyseerr.{{ servarr_domain }}`)
+            traefik.http.routers.jellyseerr.entrypoints: https
+            traefik.http.routers.jellyseerr.middlewares: local-whitelist

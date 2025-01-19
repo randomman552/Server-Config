@@ -1,0 +1,57 @@
+- name: Install jellyfin
+  become: true
+  community.docker.docker_compose_v2:
+    project_name: jellyfin
+    definition:
+      services:
+        jellyfin:
+          image: jellyfin/jellyfin
+          user: "{{ jellyfin_uid }}:{{ jellyfin_gid }}"
+          environment:
+            NVIDIA_DRIVER_CAPABILITIES: all
+          volumes:
+            - "{{ jellyfin_home }}/config:/config"
+            - "{{ jellyfin_home }}/cache:/cache"
+            - "{{ jellyfin_media_home }}/data:/media"
+          restart: unless-stopped
+          deploy:
+            resources:
+              reservations:
+                devices:
+                  - driver: nvidia
+                    count: 1
+                    capabilities: [gpu]
+          labels:
+            traefik.enable: "true"
+            # Middleware
+            traefik.http.middlewares.jellyfin-security.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex
+            traefik.http.middlewares.jellyfin-security.headers.SSLRedirect: "true"
+            traefik.http.middlewares.jellyfin-security.headers.STSSeconds: 315360000
+            traefik.http.middlewares.jellyfin-security.headers.STSIncludeSubdomains: "true"
+            traefik.http.middlewares.jellyfin-security.headers.STSPreload: "true"
+            traefik.http.middlewares.jellyfin-security.headers.frameDeny: "true"
+            traefik.http.middlewares.jellyfin-security.headers.contentTypeNosniff: "true"
+            traefik.http.middlewares.jellyfin-security.headers.browserXSSFilter: "true"
+            traefik.http.middlewares.jellyfin-security.headers.customFrameOptionsValue: allow-from https://{{ jellyfin_host }}
+            # HTTP Service
+            traefik.http.services.jellyfin.loadbalancer.server.port: 8096
+            traefik.http.routers.jellyfin.service: jellyfin
+            traefik.http.routers.jellyfin.rule: Host(`{{ jellyfin_host }}`) && !PathPrefix(`/metrics`)
+            traefik.http.routers.jellyfin.entrypoints: https
+            traefik.http.routers.jellyfin.middlewares: jellyfin-security, local-whitelist
+
+        jellyfin-exporter:
+          image: randomman552/jellyfin-prometheus-exporter
+          restart: unless-stopped
+          environment:
+            JELLYFIN_URL: "https://{{ jellyfin_host }}"
+            JELLYFIN_API_KEY: "{{ jellyfin_exporter_api_token }}"
+          depends_on:
+            - jellyfin
+          labels:
+            traefik.enable: true
+            traefik.http.services.jellyfin-metrics.loadbalancer.server.port: 2112
+            traefik.http.routers.jellyfin-metrics.service: jellyfin-metrics
+            traefik.http.routers.jellyfin-metrics.rule: Host(`{{ jellyfin_host }}`) && PathPrefix(`/metrics`)
+            traefik.http.routers.jellyfin-metrics.entrypoints: https
+            traefik.http.routers.jellyfin-metrics.middlewares: jellyfin-security, local-whitelist
