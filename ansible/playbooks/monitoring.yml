@@ -2,4 +2,3 @@
   hosts: monitoring_server
   roles:
     - telegraf-docker-apcupsd
-    - jellyfin-docker-metrics
