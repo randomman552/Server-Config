@@ -57,6 +57,7 @@ all:
         gateway_server:
         git_server:
         auth_server:
+        media_server:
 
     # Portainer agent
     portainer_agent:
@@ -78,6 +79,7 @@ all:
         gateway_server:
         git_server:
         auth_server:
+        media_server:
 
     # Traefik reverse proxy
     traefik:
@@ -87,3 +89,4 @@ all:
         backup_server:
         git_server:
         auth_server:
+        media_server:

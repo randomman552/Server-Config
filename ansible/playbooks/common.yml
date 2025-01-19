@@ -8,7 +8,22 @@
   roles:
     - common
 
-- name: Nvidia Drivers
-  hosts: nvidia
+- name: Docker
+  hosts: docker
   roles:
-    - nvidia-drivers
+    - docker
+
+- name: Traefik
+  hosts: traefik
+  roles:
+    - traefik
+
+- name: Watchtower
+  hosts: watchtower
+  roles:
+    - watchtower
+
+- name: Portainer agent
+  hosts: portainer_agent
+  roles:
+    - portainer-agent

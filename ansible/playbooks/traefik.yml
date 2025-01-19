@@ -1,4 +1,0 @@
-- name: Traefik
-  hosts: traefik
-  roles:
-    - traefik

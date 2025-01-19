@@ -1,4 +1,0 @@
-- name: Watchtower
-  hosts: watchtower
-  roles:
-    - watchtower
