@@ -1,7 +1,16 @@
+- name: Copy nginx config
+  become: true
+  ansible.builtin.copy:
+    mode: "0644"
+    src: nginx.conf
+    dest: "{{ nextcloud_home }}/nginx.conf"
+
+
 - name: Install nextcloud
   become: true
   community.docker.docker_compose_v2:
     project_name: nextcloud
+    remove_orphans: true
     definition:
       services:
         # MySQL database
@@ -79,22 +88,18 @@
             retries: 5
             timeout: 3s
 
-        # Nextcloud application
-        nextcloud:
-          image: randomman552/nextcloud-ffmpeg:stable-apache
+        # Webserver
+        web:
+          image: nginx
           restart: unless-stopped
           volumes:
-            - "{{ nextcloud_home }}/html:/var/www/html"
-            - "{{ nextcloud_home }}/data:/nextcloud-data"
-          environment:
-            MYSQL_DATABASE: "{{ nextcloud_database_database }}"
-            MYSQL_USER: "{{ nextcloud_database_username }}"
-            MYSQL_PASSWORD: "{{ nextcloud_database_password }}"
-            MYSQL_HOST: db
-            REDIS_HOST: redis
+            - "{{ nextcloud_home }}/nginx.conf:/etc/nginx/nginx.conf:ro"
+          links:
+            - app
+          volumes_from:
+            - app
           depends_on:
-            - db
-            - redis
+            - app
           labels:
             traefik.enable: true
             # Middleware
@@ -109,9 +114,26 @@
             traefik.http.routers.nextcloud.entrypoints: https
             traefik.http.routers.nextcloud.middlewares: nextcloud-headers, nextcloud-webfinger
 
+        # Application
+        app:
+          image: randomman552/nextcloud-ffmpeg:stable-fpm
+          restart: unless-stopped
+          volumes:
+            - "{{ nextcloud_home }}/html:/var/www/html"
+            - "{{ nextcloud_home }}/data:/nextcloud-data"
+          environment:
+            MYSQL_DATABASE: "{{ nextcloud_database_database }}"
+            MYSQL_USER: "{{ nextcloud_database_username }}"
+            MYSQL_PASSWORD: "{{ nextcloud_database_password }}"
+            MYSQL_HOST: db
+            REDIS_HOST: redis
+          depends_on:
+            - db
+            - redis
+
         # Cron to execute periodic tasks on nextcloud
         cron:
-          image: randomman552/nextcloud-ffmpeg:stable-apache
+          image: randomman552/nextcloud-ffmpeg:stable-fpm
           restart: unless-stopped
           entrypoint: /cron.sh
           volumes:
@@ -135,7 +157,7 @@
             NEXTCLOUD_SERVER: "https://{{ nextcloud_host }}"
             NEXTCLOUD_AUTH_TOKEN: "{{ nextcloud_metrics_token }}"
           depends_on:
-            - nextcloud
+            - app
           labels:
             traefik.enable: true
             traefik.http.services.nextcloud-metrics.loadbalancer.server.port: 9205
