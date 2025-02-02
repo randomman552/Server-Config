@@ -106,6 +106,9 @@
             traefik.http.middlewares.nextcloud-headers.headers.stsSeconds: 15552000
             traefik.http.middlewares.nextcloud-headers.headers.stsPreload: true
             traefik.http.middlewares.nextcloud-headers.headers.stsIncludeSubdomains: true
+            traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Frame-Options: sameorigin
+            traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.Referrer-Policy: no-referrer
+            traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow
             traefik.http.middlewares.nextcloud-webfinger.redirectregex.regex: https://(.*)/.well-known/(card|cal)dav
             traefik.http.middlewares.nextcloud-webfinger.redirectregex.replacement: https://$${1}/remote.php/dav/
             # Service
