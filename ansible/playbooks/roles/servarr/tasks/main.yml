@@ -5,11 +5,33 @@
     remove_orphans: true
     definition:
       services:
+        # VPN
+        gluetun:
+          image: qmcgaw/gluetun
+          container_name: servarr-gluetun
+          hostname: gluetun
+          restart: unless-stopped
+          cap_add:
+            - NET_ADMIN
+          devices:
+            - /dev/net/tun:/dev/net/tun
+          volumes:
+            - "{{ servarr_home }}/gluetun:/gluetun"
+          environment:
+            TZ: "{{ servarr_timezone }}"
+            VPN_SERVICE_PROVIDER: "{{ servarr_gluetun_service_provider }}"
+            OPENVPN_USER: "{{ servarr_gluetun_user }}"
+            OPENVPN_PASSWORD: "{{ servarr_gluetun_pass }}"
+            SERVER_REGIONS: "{{ servarr_gluetun_server_regions }}"
+
         # Torrent
         deluge:
           image: linuxserver/deluge:latest
           container_name: servarr-deluge
+          network_mode: "service:gluetun"
           restart: unless-stopped
+          depends_on:
+            - gluetun
           environment:
             PUID: "{{ servarr_puid }}"
             PGID: "{{ servarr_pgid }}"
@@ -30,7 +52,10 @@
         prowlarr:
           image: linuxserver/prowlarr:nightly
           container_name: servarr-prowlarr
+          network_mode: "service:gluetun"
           restart: unless-stopped
+          depends_on:
+            - gluetun
           environment:
             PUID: "{{ servarr_puid }}"
             PGID: "{{ servarr_pgid }}"
@@ -50,6 +75,7 @@
         sonarr:
           image: linuxserver/sonarr:latest
           container_name: servarr-sonarr
+          network_mode: "service:gluetun"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
@@ -62,6 +88,7 @@
           depends_on:
             - deluge
             - prowlarr
+            - gluetun
           labels:
             traefik.enable: "true"
             traefik.http.services.sonarr.loadbalancer.server.port: 8989
@@ -73,6 +100,7 @@
         radarr:
           image: linuxserver/radarr:latest
           container_name: servarr-radarr
+          network_mode: "service:gluetun"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
@@ -85,6 +113,7 @@
           depends_on:
             - deluge
             - prowlarr
+            - gluetun
           labels:
             traefik.enable: "true"
             traefik.http.services.radarr.loadbalancer.server.port: 7878
@@ -96,6 +125,7 @@
         bazarr:
           image: lscr.io/linuxserver/bazarr:latest
           container_name: servarr-bazarr
+          network_mode: "service:gluetun"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
@@ -108,6 +138,7 @@
           depends_on:
             - radarr
             - sonarr
+            - gluetun
           labels:
             traefik.enable: "true"
             traefik.http.services.bazarr.loadbalancer.server.port: 6767
