@@ -12,7 +12,7 @@
       TZ: "{{ watchtower_timezone }}"
 
       WATCHTOWER_CLEANUP: "true"
-      WATCHTOWER_ROLLING_RESTART: "true"
+      WATCHTOWER_ROLLING_RESTART: "false"
       WATCHTOWER_SCHEDULE: "{{ watchtower_schedule }}"
 
       WATCHTOWER_NOTIFICATIONS: "gotify"
