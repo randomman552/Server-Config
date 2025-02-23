@@ -1,0 +1,20 @@
+- name: Install gotify
+  become: true
+  community.docker.docker_compose_v2:
+    project_name: gotify
+    remove_orphans: true
+    definition:
+      services:
+        gotify-server:
+          image: gotify/server
+          restart: unless-stopped
+          environment:
+            TZ: "{{ gotify_timezone }}"
+          volumes:
+            - "{{ gotify_home }}/data:/app/data"
+          labels:
+            traefik.enable: true
+            # Normal server traffic
+            traefik.http.services.gotify.loadbalancer.server.port: 80
+            traefik.http.routers.gotify.rule: Host(`{{ gotify_host }}`)
+            traefik.http.routers.gotify.entrypoints: https

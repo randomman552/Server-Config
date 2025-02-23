@@ -1,4 +1,5 @@
-- name: Monitoring server
+- name: Install applications
   hosts: monitoring_server
   roles:
+    - gotify
     - telegraf-docker-apcupsd
