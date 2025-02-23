@@ -14,7 +14,6 @@
             - PUID=1000
             - PGID=1000
             - APP_KEY={{ speedtest_tracker_app_key }}
-            - APP_DEBUG=true
             - DB_CONNECTION=sqlite
           volumes:
             - "{{ speedtest_tracker_home }}/config:/config"
