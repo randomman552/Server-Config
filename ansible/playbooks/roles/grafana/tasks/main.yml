@@ -1,0 +1,70 @@
+- name: Install grafana
+  become: true
+  community.docker.docker_compose_v2:
+    project_name: grafana
+    remove_orphans: true
+    definition:
+      services:
+        # Grafana
+        grafana:
+          image: "grafana/grafana-oss:{{ grafana_version }}"
+          restart: unless-stopped
+          user: "1100"
+          volumes:
+            - "{{ grafana_home }}:/var/lib/grafana"
+          environment:
+            GF_SERVER_DOMAIN: "{{ grafana_host }}"
+            GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s"
+            GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+            GF_AUTH_GENERIC_OAUTH_NAME: "authentik"
+            GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "{{ grafana_authentik_client_id }}"
+            GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "{{ grafana_authentik_client_secret }}"
+            GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email"
+            GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://{{ grafana_authentik_host }}/application/o/authorize/"
+            GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://{{ grafana_authentik_host }}/application/o/token/"
+            GF_AUTH_GENERIC_OAUTH_API_URL: "https://{{ grafana_authentik_host }}/application/o/userinfo/"
+            GF_AUTH_SIGNOUT_REDIRECT_URL: "https://{{ grafana_authentik_host }}/application/o/grafana/end-session/"
+            # Enable auto-login (bypasses Grafana login screen)
+            GF_AUTH_OAUTH_AUTO_LOGIN: "true"
+            # Map user groups to Grafana roles
+            GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: |
+              "contains(groups[*], '{{ grafana_admin_group }}') && 'Admin' || contains(groups[*], '{{ grafana_editor_group }}') && 'Editor' || 'Viewer'"
+          labels:
+            traefik.enable: true
+            traefik.http.services.grafana.loadbalancer.server.port: 3000
+            traefik.http.routers.grafana.rule: Host(`{{ grafana_host }}`)
+            traefik.http.routers.grafana.entrypoints: https
+
+        # Prometeus data provider
+        prometheus:
+          image: prom/prometheus:latest
+          restart: unless-stopped
+          volumes:
+            - "{{ grafana_prometheus_home }}/prometheus.yml:/etc/prometheus/prometheus.yml"
+            - "{{ grafana_prometheus_home }}/data:/prometheus"
+          command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/etc/prometheus/console_libraries'
+            - '--web.console.templates=/etc/prometheus/consoles'
+            - '--web.enable-lifecycle'
+          expose:
+            - 9090
+
+        # Influx
+        influxdb:
+          image: "influxdb:{{ grafana_influx_version }}"
+          restart: unless-stopped
+          volumes:
+            - "{{ grafana_influx_home }}/config:/etc/influxdb2"
+            - "{{ grafana_influx_home }}/data:/var/lib/influxdb2"
+          healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+            interval: 5s
+            timeout: 10s
+            retries: 20
+          labels:
+            traefik.enable: true
+            traefik.http.services.influx.loadbalancer.server.port: 8086
+            traefik.http.routers.influx.rule: Host(`{{ grafana_influx_host }}`)
+            traefik.http.routers.influx.entrypoints: https

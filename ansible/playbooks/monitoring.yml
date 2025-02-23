@@ -3,4 +3,5 @@
   roles:
     - gotify
     - uptime-kuma
+    - grafana
     - telegraf-docker-apcupsd
