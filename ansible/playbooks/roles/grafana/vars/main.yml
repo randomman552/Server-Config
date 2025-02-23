@@ -1,5 +1,5 @@
 # Grafana
-grafana_version: 9.5.3
+grafana_version: 11.5.2
 grafana_home: /data/grafana
 grafana_host: !vault |
   $ANSIBLE_VAULT;1.1;AES256
