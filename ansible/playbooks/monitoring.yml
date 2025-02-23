@@ -4,4 +4,5 @@
     - gotify
     - uptime-kuma
     - grafana
+    - speedtest-tracker
     - telegraf-docker-apcupsd
