@@ -3,6 +3,7 @@
   roles:
     - jellyfin
     - servarr
+    - portainer-agent
 
 - name: Configure services
   hosts: media_server
