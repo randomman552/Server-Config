@@ -3,3 +3,8 @@
   roles:
     - jellyfin
     - servarr
+
+- name: Configure services
+  hosts: media_server
+  roles:
+    - schedule-restart

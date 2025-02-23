@@ -1,0 +1,8 @@
+# Command used to reboot
+restart_command: "/usr/sbin/reboot"
+# Default schedule is 5am every day
+restart_schedule_minute: "0"
+restart_schedule_hour: "5"
+restart_schedule_day: "*"
+restart_schedule_month: "*"
+restart_schedule_dow: "*"

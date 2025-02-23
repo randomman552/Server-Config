@@ -1,0 +1,12 @@
+- name: Ensure reboot task is present
+  become: true
+  ansible.builtin.cron:
+    name: "scheduled-restart"
+    minute: "{{ restart_schedule_minute }}"
+    hour: "{{ restart_schedule_hour }}"
+    day: "{{ restart_schedule_day }}"
+    month: "{{ restart_schedule_month }}"
+    weekday: "{{ restart_schedule_dow }}"
+    # Always run as root
+    user: "root"
+    job: "{{ restart_command }}"
