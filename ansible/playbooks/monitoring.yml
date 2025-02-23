@@ -2,4 +2,5 @@
   hosts: monitoring_server
   roles:
     - gotify
+    - uptime-kuma
     - telegraf-docker-apcupsd
