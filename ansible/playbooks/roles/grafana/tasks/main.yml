@@ -26,9 +26,11 @@
             GF_AUTH_SIGNOUT_REDIRECT_URL: "https://{{ grafana_authentik_host }}/application/o/grafana/end-session/"
             # Enable auto-login (bypasses Grafana login screen)
             GF_AUTH_OAUTH_AUTO_LOGIN: "true"
+            # Allow email lookup (backwards compatibility)
+            GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP: "true"
             # Map user groups to Grafana roles
             GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: |
-              "contains(groups[*], '{{ grafana_admin_group }}') && 'Admin' || contains(groups[*], '{{ grafana_editor_group }}') && 'Editor' || 'Viewer'"
+              contains(groups[*], '{{ grafana_admin_group }}') && 'Admin' || contains(groups[*], '{{ grafana_editor_group }}') && 'Editor' || 'Viewer'
           labels:
             traefik.enable: true
             traefik.http.services.grafana.loadbalancer.server.port: 3000
