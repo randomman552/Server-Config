@@ -2,3 +2,4 @@
   hosts: auth_server
   roles:
     - authentik
+    - portainer-agent
