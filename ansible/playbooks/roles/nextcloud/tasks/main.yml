@@ -62,21 +62,6 @@
             POSTGRES_PASSWORD: "{{ nextcloud_database_password }}"
             POSTGRES_DB: "{{ nextcloud_database_database }}"
 
-        # Database backup
-        db-backup:
-          image: databack/mysql-backup
-          restart: unless-stopped
-          volumes:
-            - "{{ nextcloud_home }}/backup:/backup"
-          depends_on:
-            - db
-          environment:
-            DB_SERVER: db
-            DB_USER: root
-            DB_PASS: "{{ nextcloud_database_root_password }}"
-            POSTGRES_DB: "{{ nextcloud_database_database }}"
-            DB_DUMP_CRON: "0 0 * * *"
-
         # Redis for memcache
         redis:
           image: redis:alpine
