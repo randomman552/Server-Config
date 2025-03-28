@@ -6,29 +6,30 @@
     definition:
       services:
         # VPN
-        gluetun:
-          image: qmcgaw/gluetun
-          container_name: servarr-gluetun
-          hostname: gluetun
-          restart: unless-stopped
-          cap_add:
-            - NET_ADMIN
-          devices:
-            - /dev/net/tun:/dev/net/tun
-          volumes:
-            - "{{ servarr_home }}/gluetun:/gluetun"
-          environment:
-            TZ: "{{ servarr_timezone }}"
-            VPN_SERVICE_PROVIDER: "{{ servarr_gluetun_service_provider }}"
-            OPENVPN_USER: "{{ servarr_gluetun_user }}"
-            OPENVPN_PASSWORD: "{{ servarr_gluetun_pass }}"
-            SERVER_REGIONS: "{{ servarr_gluetun_server_regions }}"
+        # gluetun:
+        #   image: qmcgaw/gluetun
+        #   container_name: servarr-gluetun
+        #   hostname: gluetun
+        #   restart: unless-stopped
+        #   cap_add:
+        #     - NET_ADMIN
+        #   devices:
+        #     - /dev/net/tun:/dev/net/tun
+        #   volumes:
+        #     - "{{ servarr_home }}/gluetun:/gluetun"
+        #   environment:
+        #     TZ: "{{ servarr_timezone }}"
+        #     VPN_SERVICE_PROVIDER: "{{ servarr_gluetun_service_provider }}"
+        #     OPENVPN_USER: "{{ servarr_gluetun_user }}"
+        #     OPENVPN_PASSWORD: "{{ servarr_gluetun_pass }}"
+        #     SERVER_REGIONS: "{{ servarr_gluetun_server_regions }}"
 
         # Torrent
         deluge:
           image: linuxserver/deluge:latest
           container_name: servarr-deluge
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "service:deluge"
           restart: unless-stopped
           depends_on:
             - gluetun
@@ -52,7 +53,8 @@
         prowlarr:
           image: linuxserver/prowlarr:nightly
           container_name: servarr-prowlarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "service:deluge"
           restart: unless-stopped
           depends_on:
             - gluetun
@@ -75,7 +77,8 @@
         sonarr:
           image: linuxserver/sonarr:latest
           container_name: servarr-sonarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "service:deluge"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
@@ -100,7 +103,8 @@
         radarr:
           image: linuxserver/radarr:latest
           container_name: servarr-radarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "service:deluge"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
@@ -125,7 +129,8 @@
         bazarr:
           image: lscr.io/linuxserver/bazarr:latest
           container_name: servarr-bazarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "service:deluge"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
