@@ -1,4 +1,6 @@
 speedtest_tracker_home: /data/speedtest-tracker
+speedtest_tracker_schedule: 0 * * * *
+speedtest_tracker_timezone: Europe/London
 speedtest_tracker_host: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   35383963343237373131383137366161373034646633636138623364313931373633343432393537
