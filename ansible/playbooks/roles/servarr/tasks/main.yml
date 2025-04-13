@@ -28,7 +28,8 @@
         deluge:
           image: linuxserver/deluge:latest
           container_name: servarr-deluge
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "host"
           restart: unless-stopped
           depends_on:
             - gluetun
@@ -52,7 +53,8 @@
         prowlarr:
           image: linuxserver/prowlarr:nightly
           container_name: servarr-prowlarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "host"
           restart: unless-stopped
           depends_on:
             - gluetun
@@ -75,7 +77,8 @@
         sonarr:
           image: linuxserver/sonarr:latest
           container_name: servarr-sonarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "host"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
@@ -100,7 +103,8 @@
         radarr:
           image: linuxserver/radarr:latest
           container_name: servarr-radarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "host"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
@@ -125,7 +129,8 @@
         bazarr:
           image: lscr.io/linuxserver/bazarr:latest
           container_name: servarr-bazarr
-          network_mode: "service:gluetun"
+          # network_mode: "service:gluetun"
+          network_mode: "host"
           restart: unless-stopped
           environment:
             PUID: "{{ servarr_puid }}"
