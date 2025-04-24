@@ -1,0 +1,14 @@
+- name: Setup certbot
+  become: true
+  changed_when: false
+  ansible.builtin.shell:
+    cmd: |
+      certbot certonly \
+      --dns-cloudflare \
+      --dns-cloudflare-credentials ~/.secrets/cloudflare.ini \
+      -d {{ authentik_host }} \
+      -m {{ authentik_cert_email }} \
+      --agree-tos \
+      --no-eff-email \
+      --non-interactive \
+      --no-redirect
