@@ -79,11 +79,6 @@ services:
       redis:
         condition: service_healthy
         restart: true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'    # Limit CPU usage to 50% of one core
-          memory: '4G'    # Limit memory usage to 2GB
     labels:
       traefik.enable: true
       traefik.http.services.dawarich.loadbalancer.server.port: 3000
@@ -139,8 +134,3 @@ services:
       app:
         condition: service_healthy
         restart: true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'    # Limit CPU usage to 50% of one core
-          memory: '4G'    # Limit memory usage to 2GB
