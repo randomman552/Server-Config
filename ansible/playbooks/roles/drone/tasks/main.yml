@@ -8,6 +8,7 @@
           image: drone/drone
           restart: unless-stopped
           environment:
+            TZ: "{{ drone_timezone }}"
             # DRONE_GITEA_SERVER: "https://{{ drone_gitea_server }}"
             # DRONE_GITEA_CLIENT_ID: "{{ drone_gitea_client_id }}"
             # DRONE_GITEA_CLIENT_SECRET: "{{ drone_gitea_client_secret }}"
