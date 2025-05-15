@@ -37,6 +37,21 @@
             traefik.http.routers.grafana.rule: Host(`{{ grafana_host }}`)
             traefik.http.routers.grafana.entrypoints: https
 
+        # Loki
+        loki:
+          image: grafana/loki:latest
+          restart: unless-stopped
+          command: -config.file=/loki/config.yml
+          volumes:
+            - "{{ grafana_loki_home }}:/loki"
+          ports:
+            - 3100:3100
+          labels:
+            traefik.enable: true
+            traefik.http.services.loki.loadbalancer.server.port: 3100
+            traefik.http.routers.loki.rule: Host(`{{ grafana_loki_host }}`)
+            traefik.http.routers.loki.entrypoints: https
+
         # Prometeus data provider
         prometheus:
           image: prom/prometheus:latest
