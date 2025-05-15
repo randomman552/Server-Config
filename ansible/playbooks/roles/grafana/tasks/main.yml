@@ -39,7 +39,7 @@
 
         # Loki
         loki:
-          image: grafana/loki:latest
+          image: grafana/loki:3.4
           restart: unless-stopped
           command: -config.file=/loki/config.yml
           volumes:
@@ -51,6 +51,9 @@
             traefik.http.services.loki.loadbalancer.server.port: 3100
             traefik.http.routers.loki.rule: Host(`{{ grafana_loki_host }}`)
             traefik.http.routers.loki.entrypoints: https
+          logging:
+            options:
+              mode: non-blocking
 
         # Prometeus data provider
         prometheus:
