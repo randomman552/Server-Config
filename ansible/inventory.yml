@@ -59,6 +59,20 @@ all:
         auth_server:
         media_server:
 
+    # Systems using docker
+    docker:
+      hosts:
+        game_server:
+        monitoring_server:
+        backup_server:
+        ci_runner_server:
+        portainer_server:
+        pihole_server:
+        gateway_server:
+        git_server:
+        auth_server:
+        media_server:
+
     # Portainer agent
     portainer_agent:
       hosts:

@@ -26,15 +26,6 @@
       - docker-buildx-plugin
       - docker-compose-plugin
 
-# Install loki logging plugin
-- name: Install loki logging plugin
-  become: true
-  community.docker.docker_plugin:
-    alias: loki
-    plugin_name: grafana/loki-docker-driver:latest
-    state: enable
-
-# Configure loki logging to be the default for the daemon
 - name: Configure docker daemon
   become: true
   ansible.builtin.copy:
