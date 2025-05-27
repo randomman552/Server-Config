@@ -55,3 +55,12 @@
             traefik.http.routers.jellyfin-metrics.rule: Host(`{{ jellyfin_host }}`) && PathPrefix(`/metrics`)
             traefik.http.routers.jellyfin-metrics.entrypoints: https
             traefik.http.routers.jellyfin-metrics.middlewares: jellyfin-security, local-whitelist
+
+# Fix nvidia drivers uninstalling themselves (don't know why they do this)
+- name: Nvidia drivers install on startup
+  become: true
+  ansible.builtin.cron:
+    name: "fix-nvidia-drivers"
+    special_time: reboot
+    user: "root"
+    job: "apt install linux-headers-$(uname -r) && docker start jellyfin-jellyfin-1"
