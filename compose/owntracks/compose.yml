@@ -1,0 +1,35 @@
+version: "3"
+services:
+  recorder:
+    image: owntracks/recorder
+    environment:
+      # Disable MQTT
+      OTR_PORT: 0
+    volumes:
+      - ${OWNTRACKS_HOME}/store:/store
+      - ${OWNTRACKS_HOME}/config:/config
+    labels:
+      traefik.enable: true
+      traefik.http.services.owntracks-recorder.loadbalancer.server.port: 8083
+      traefik.http.routers.owntracks-recorder.service: owntracks-recorder
+      traefik.http.routers.owntracks-recorder.rule: Host(`$OWNTRACKS_RECORDER_HOST`)
+      traefik.http.routers.owntracks-recorder.entrypoints: https
+      traefik.http.routers.owntracks-recorder.middlewares: owntracks-auth
+      # List of authorised users, could write a custom application to provide basic auth using authentik
+      # But that would be really complicated for very little gain so I'm going to shelve that for now.
+      # To add to this list run `htpasswd -nbB "username" password` and append to the OWNTRACKS_RECORDER_USERS variable with `,` separating users
+      traefik.http.middlewares.owntracks-auth.basicauth.users: "$OWNTRACKS_RECORDER_USERS"
+    
+  frontend:
+    image: owntracks/frontend
+    environment:
+      SERVER_HOST: recorder
+      SERVER_PORT: 8083
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.services.owntracks-frontend.loadbalancer.server.port: 80
+      traefik.http.routers.owntracks-frontend.service: owntracks-frontend
+      traefik.http.routers.owntracks-frontend.rule: Host(`$OWNTRACKS_FRONTEND_HOST`)
+      traefik.http.routers.owntracks-frontend.entrypoints: https
+      traefik.http.routers.owntracks-frontend.middlewares: local-whitelist, authentik-forwardauth
