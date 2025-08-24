@@ -1,5 +1,5 @@
 # Version and storage location
-authentik_tag: 2025.6.3
+authentik_tag: 2025.8.1
 authentik_home: /data/authentik
 # Database
 authentik_pg_pass: !vault |
