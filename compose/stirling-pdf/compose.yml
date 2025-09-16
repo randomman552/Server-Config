@@ -13,4 +13,4 @@ services:
       traefik.http.services.stirling-pdf.loadbalancer.server.port: 8080
       traefik.http.routers.stirling-pdf.rule: Host(`${STIRLING_HOST}`)
       traefik.http.routers.stirling-pdf.entrypoints: https
-      traefik.http.routers.stirling-pdf.middlewares: local-whitelist, authentik-forwardauth
+      traefik.http.routers.stirling-pdf.middlewares: authentik-forwardauth
