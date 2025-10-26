@@ -4,12 +4,10 @@ services:
     image: ghcr.io/seriousm4x/upsnap:4
     restart: unless-stopped
     network_mode: host
-    user: 1000:1000
     volumes:
       - ${UPSNAP_HOME}/data:/app/pb_data
     environment:
        TZ: $UPSNAP_TZ
-       UPSNAP_PING_PRIVILEGED: false
     labels:
       traefik.enable: true
       traefik.http.services.upsnap.loadbalancer.server.port: 8090
