@@ -5,7 +5,7 @@
     name: watchtower
     pull: always
     restart_policy: always
-    image: containrrr/watchtower
+    image: ghcr.io/nicholas-fedor/watchtower:latest-dev
     hostname: "{{ inventory_hostname }}"
     privileged: true
     env:
