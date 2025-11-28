@@ -15,4 +15,4 @@ services:
       - MAX_MEMORY=8G
       - ENABLE_ROLLING_LOGS=true
     volumes:
-      - /storage/games/minecraft/oceanblock:/data
+      - /data/minecraft/oceanblock:/data
