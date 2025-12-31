@@ -1,15 +1,23 @@
-- name: Install CI Runner
+- name: Install drone runner
   become: true
-  community.docker.docker_container:
-    name: drone-runner
-    pull: always
-    restart_policy: always
-    image: drone/drone-runner-docker:latest
-    env:
-      DRONE_RPC_PROTO: "{{ drone_rpc_protocol }}"
-      DRONE_RPC_HOST: "{{ drone_rpc_host }}"
-      DRONE_RPC_SECRET: "{{ drone_rpc_secret }}"
-      DRONE_RUNNER_NAME: "{{ drone_runner_name }}"
-      DRONE_RUNNER_CAPACITY: "2"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+  community.docker.docker_compose_v2:
+    project_name: drone-runer
+    definition:
+      services:
+        runner:
+          restart: unless-stopped
+          image: drone/drone-runner-docker:latest
+          environment:
+            DRONE_RPC_PROTO: "{{ drone_rpc_protocol }}"
+            DRONE_RPC_HOST: "{{ drone_rpc_host }}"
+            DRONE_RPC_SECRET: "{{ drone_rpc_secret }}"
+            DRONE_RUNNER_NAME: "{{ drone_runner_name }}"
+            DRONE_RUNNER_CAPACITY: "2"
+            DOCKER_HOST: "tcp://docker:2375"
+
+        docker:
+          image: docker:28
+          hostname: drone-docker
+          privileged: true
+          restart: unless-stopped
+          command: ["dockerd", "-H", "tcp://0.0.0.0:2375", "--tls=false"]
