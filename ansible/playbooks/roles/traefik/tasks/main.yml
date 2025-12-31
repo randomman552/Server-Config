@@ -28,6 +28,8 @@
       - --entrypoints.https.http.tls.certResolver=letsencrypt
       - --entrypoints.https.http.tls.domains[0].main={{ traefik_cloudflare_domain }}
       - --entrypoints.https.http.tls.domains[0].sans=*.{{ traefik_cloudflare_domain }}
+      - --entrypoints.https.http.encodedCharacters.allowEncodedSlash=true
+      - --entrypoints.https.http.encodedCharacters.allowEncodedQuestionMark=true
       # Metrics
       - --metrics.prometheus=true
       - --metrics.prometheus.manualrouting=true
