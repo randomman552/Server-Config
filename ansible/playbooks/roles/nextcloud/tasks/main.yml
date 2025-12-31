@@ -64,20 +64,26 @@
             - app
           labels:
             traefik.enable: true
-            # Middleware
+            # Security headers
             traefik.http.middlewares.nextcloud-headers.headers.stsSeconds: 15552000
             traefik.http.middlewares.nextcloud-headers.headers.stsPreload: true
             traefik.http.middlewares.nextcloud-headers.headers.stsIncludeSubdomains: true
             traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Frame-Options: sameorigin
             traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.Referrer-Policy: no-referrer
             traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow
-            traefik.http.middlewares.nextcloud-webfinger.redirectregex.regex: https://(.*)/.well-known/(card|cal)dav
-            traefik.http.middlewares.nextcloud-webfinger.redirectregex.replacement: https://$${1}/remote.php/dav/
+            # Redirect for card/cal dav
+            traefik.http.middlewares.nextcloud-dav-redirect.redirectregex.regex: https://(.*)/.well-known/(card|cal)dav
+            traefik.http.middlewares.nextcloud-dav-redirect.redirectregex.replacement: https://$$1/remote.php/dav/
+            traefik.http.middlewares.nextcloud-dav-redirect.redirectregex.permanent: true
+            # Redirect for webfinger
+            traefik.http.middlewares.nextcloud-wellknown-redirect.redirectregex.regex: https://(.*)/.well-known/(.*)
+            traefik.http.middlewares.nextcloud-wellknown-redirect.redirectregex.replacement: https://$$1/index.php/.well-known/$$2
+            traefik.http.middlewares.nextcloud-webfinger-redirect.redirectregex.permanent: true
             # Service
             traefik.http.services.nextcloud.loadbalancer.server.port: 80
             traefik.http.routers.nextcloud.rule: Host(`{{ nextcloud_host }}`)
             traefik.http.routers.nextcloud.entrypoints: https
-            traefik.http.routers.nextcloud.middlewares: nextcloud-headers, nextcloud-webfinger
+            traefik.http.routers.nextcloud.middlewares: nextcloud-headers, nextcloud-dav-redirect, nextcloud-wellknown-redirect
 
         # Application
         app:
