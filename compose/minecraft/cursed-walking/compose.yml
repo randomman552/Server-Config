@@ -1,0 +1,18 @@
+services:
+  server:
+    image: itzg/minecraft-server:java21-alpine
+    user: 1600:1600
+    restart: unless-stopped
+    ports:
+      - 25565:25565
+    environment:
+      TYPE: AUTO_CURSEFORGE
+      CF_API_KEY: $CF_API_KEY
+      CF_SLUG: cursed-walking-a-modern-zombie-apocalypse
+      EULA: true
+      INIT_MEMORY: 1G
+      MAX_MEMORY: 8G
+      ENABLE_ROLLING_LOGS: true
+      CREATE_CONSOLE_IN_PIPE: true
+    volumes:
+      - /data/minecraft/cursed-walking:/data
