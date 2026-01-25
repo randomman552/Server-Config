@@ -1,0 +1,7 @@
+- name: Install unattended-upgrades
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - unattended-upgrades
+      - apt-config-auto-update

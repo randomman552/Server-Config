@@ -10,6 +10,7 @@
     - rsync
     - sshd
     - utils
+    - unattended-upgrades
 
 - name: Restart schedule
   hosts: schedule_restart
