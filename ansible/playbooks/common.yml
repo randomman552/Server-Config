@@ -16,6 +16,11 @@
   roles:
     - schedule-restart
 
+- name: Certbot
+  hosts: certbot
+  roles:
+    - certbot
+
 - name: Docker
   hosts: docker
   roles:

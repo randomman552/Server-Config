@@ -1,0 +1,25 @@
+- name: Install certbot
+  become: true
+  ansible.builtin.apt:
+    name:
+      - cron
+      - certbot
+      - python3-certbot-dns-cloudflare
+    state: present
+    update_cache: true
+
+- name: Create secrets directory
+  become: true
+  ansible.builtin.file:
+    path: "~/.secrets/"
+    state: directory
+    mode: '0644'
+
+- name: Copy credentials for certbot
+  become: true
+  ansible.builtin.copy:
+    src: cloudflare.ini
+    dest: "~/.secrets/cloudflare.ini"
+    mode: '0644'
+  notify:
+    - Setup certbot

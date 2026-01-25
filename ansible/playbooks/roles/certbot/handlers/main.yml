@@ -6,8 +6,8 @@
       certbot certonly \
       --dns-cloudflare \
       --dns-cloudflare-credentials ~/.secrets/cloudflare.ini \
-      -d {{ authentik_host }} \
-      -m {{ authentik_cert_email }} \
+      -d {{ certbot_host }} \
+      -m {{ certbot_email }} \
       --agree-tos \
       --no-eff-email \
       --non-interactive \

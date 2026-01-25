@@ -109,6 +109,12 @@ all:
         media_server:
         headscale_server:
 
+    # Hosts with scheduled restarts
     schedule_restart:
       hosts:
         media_server:
+
+    # Hosts with certbot
+    certbot:
+      hosts:
+        auth_server:
