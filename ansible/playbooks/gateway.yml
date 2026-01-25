@@ -1,4 +1,0 @@
-- name: Gateway
-  hosts: gateway_server
-  roles:
-    - gateway
