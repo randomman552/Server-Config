@@ -1,0 +1,146 @@
+services:
+  # MySQL database
+  db:
+    image: mysql:8.0
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    restart: unless-stopped
+    environment:
+      MYSQL_USER: "${NEXTCLOUD_DATABASE_USERNAME}"
+      MYSQL_PASSWORD: "${NEXTCLOUD_DATABASE_PASSWORD}"
+      MYSQL_DATABASE: "${NEXTCLOUD_DATABASE_SCHEMA}"
+    volumes:
+      - "${NEXTCLOUD_HOME}/db:/var/lib/mysql"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          'mysqladmin',
+          'ping',
+          '-h',
+          'localhost',
+          '-u',
+          '$$MYSQL_USER',
+          '--password=$$MYSQL_PASSWORD'
+        ]
+      interval: 5s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
+
+  # Redis for memcache
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+
+  # Webserver
+  web:
+    image: nginx
+    restart: unless-stopped
+    volumes:
+      - "${NEXTCLOUD_HOME}/nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "${NEXTCLOUD_HOME}/html:/var/www/html"
+      - "${NEXTCLOUD_HOME}/data:/nextcloud-data"
+    depends_on:
+      - app
+    labels:
+      traefik.enable: true
+      # Security headers
+      traefik.http.middlewares.nextcloud-headers.headers.stsSeconds: 15552000
+      traefik.http.middlewares.nextcloud-headers.headers.stsPreload: true
+      traefik.http.middlewares.nextcloud-headers.headers.stsIncludeSubdomains: true
+      traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Frame-Options: sameorigin
+      traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.Referrer-Policy: no-referrer
+      traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow
+      # Service
+      traefik.http.services.nextcloud.loadbalancer.server.port: 80
+      traefik.http.routers.nextcloud.rule: Host(`${NEXTCLOUD_HOST}`)
+      traefik.http.routers.nextcloud.entrypoints: https
+      traefik.http.routers.nextcloud.middlewares: nextcloud-headers
+
+  # Application
+  app:
+    image: randomman552/nextcloud-ffmpeg:stable-fpm
+    restart: unless-stopped
+    volumes:
+      - "${NEXTCLOUD_HOME}/html:/var/www/html"
+      - "${NEXTCLOUD_HOME}/data:/nextcloud-data"
+    environment:
+      MYSQL_DATABASE: "${NEXTCLOUD_DATABASE_SCHEMA}"
+      MYSQL_USER: "${NEXTCLOUD_DATABASE_USERNAME}"
+      MYSQL_PASSWORD: "${NEXTCLOUD_DATABASE_PASSWORD}"
+      MYSQL_HOST: db
+      REDIS_HOST: redis
+    depends_on:
+      - db
+      - redis
+
+  # Cron to execute periodic tasks on nextcloud
+  cron:
+    image: randomman552/nextcloud-ffmpeg:stable-fpm
+    restart: unless-stopped
+    entrypoint: /cron.sh
+    volumes:
+      - "${NEXTCLOUD_HOME}/html:/var/www/html"
+      - "${NEXTCLOUD_HOME}/data:/nextcloud-data"
+    environment:
+      MYSQL_DATABASE: "${NEXTCLOUD_DATABASE_SCHEMA}"
+      MYSQL_USER: "${NEXTCLOUD_DATABASE_USERNAME}"
+      MYSQL_PASSWORD: "${NEXTCLOUD_DATABASE_PASSWORD}"
+      MYSQL_HOST: db
+      REDIS_HOST: redis
+    depends_on:
+      - db
+      - redis
+
+  # Prometheus exporter
+  nextcloud-exporter:
+    image: xperimental/nextcloud-exporter
+    restart: unless-stopped
+    environment:
+      NEXTCLOUD_SERVER: "https://${NEXTCLOUD_HOST}"
+      NEXTCLOUD_AUTH_TOKEN: "${NEXTCLOUD_METRICS_TOKEN}"
+    depends_on:
+      - app
+    labels:
+      traefik.enable: true
+      traefik.http.services.nextcloud-metrics.loadbalancer.server.port: 9205
+      traefik.http.routers.nextcloud-metrics.rule: Host(`${NEXTCLOUD_HOST}`) && PathPrefix(`/metrics`)
+      traefik.http.routers.nextcloud-metrics.entrypoints: https
+      traefik.http.routers.nextcloud-metrics.middlewares: local-whitelist, nextcloud-headers
+
+  # Collabora
+  collabora:
+    image: collabora/code
+    restart: unless-stopped
+    environment:
+      username: "${NEXTCLOUD_COLLABORA_USERNAME}"
+      password: "${NEXTCLOUD_COLLABORA_PASSWORD}"
+      server_name: "${NEXTCLOUD_COLLABORA_HOST}"
+      domain: "${NEXTCLOUD_HOST}"
+      dictionaries: en_GB
+      extra_params: --o:ssl.enable=false --o:ssl.termination=true
+    cap_add:
+      - MKNOD
+    labels:
+      traefik.enable: true
+      traefik.http.services.collabora.loadbalancer.server.port: 9980
+      traefik.http.routers.collabora.rule: Host(`${NEXTCLOUD_COLLABORA_HOST}`)
+      traefik.http.routers.collabora.entrypoints: https
+
+  # Draw.io integration
+  drawio:
+    image: jgraph/drawio
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: "${NEXTCLOUD_DRAWIO_HOST}"
+    labels:
+      traefik.enable: true
+      traefik.http.services.drawio.loadbalancer.server.port: 8080
+      traefik.http.routers.drawio.rule: Host(`${NEXTCLOUD_DRAWIO_HOST}`)
+      traefik.http.routers.drawio.entrypoints: https
