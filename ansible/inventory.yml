@@ -1,3 +1,4 @@
+
 all:
   hosts:
     local:
@@ -20,9 +21,6 @@ all:
     portainer_server:
       ansible_host: portainer.ggrainger.uk
       ansible_user: ansible
-    pihole_server:
-      ansible_host: pihole.ggrainger.uk
-      ansible_user: ansible
     ci_runner_server:
       ansible_host: ci-runner.ggrainger.uk
       ansible_user: ansible
@@ -37,6 +35,9 @@ all:
       ansible_user: ansible
     auth_server:
       ansible_host: auth.ggrainger.uk
+      ansible_user: ansible
+    headscale_server:
+      ansible_host: headscale.ggrainger.uk
       ansible_user: ansible
 
   children:
@@ -53,11 +54,11 @@ all:
         monitoring_server:
         ci_runner_server:
         portainer_server:
-        pihole_server:
         gateway_server:
         git_server:
         auth_server:
         media_server:
+        headscale_server:
 
     # Systems using docker
     docker:
@@ -67,11 +68,11 @@ all:
         backup_server:
         ci_runner_server:
         portainer_server:
-        pihole_server:
         gateway_server:
         git_server:
         auth_server:
         media_server:
+        headscale_server:
 
     # Portainer agent
     portainer_agent:
@@ -80,6 +81,7 @@ all:
         monitoring_server:
         backup_server:
         gateway_server:
+        headscale_server:
 
     # Watchtower docker updates
     watchtower:
@@ -89,12 +91,12 @@ all:
         backup_server:
         ci_runner_server:
         portainer_server:
-        pihole_server:
         gateway_server:
         git_server:
         auth_server:
         media_server:
         document_server:
+        headscale_server:
 
     # Traefik reverse proxy
     traefik:
@@ -105,3 +107,4 @@ all:
         git_server:
         auth_server:
         media_server:
+        headscale_server:
