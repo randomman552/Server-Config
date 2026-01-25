@@ -1,0 +1,9 @@
+# Install htop
+- name: Install utilities
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - htop
+      - btop
+      - dnsutils

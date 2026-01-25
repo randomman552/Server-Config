@@ -1,4 +1,0 @@
-- name: Install Nextcloud
-  hosts: document_server
-  roles:
-    - nextcloud

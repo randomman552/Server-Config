@@ -6,10 +6,13 @@
 - name: Common configuration
   hosts: all
   roles:
-    - common
+    - locale
+    - rsync
+    - sshd
+    - utils
 
 - name: Restart schedule
-  hosts: schedule-restart
+  hosts: schedule_restart
   roles:
     - schedule-restart
 

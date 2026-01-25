@@ -109,6 +109,6 @@ all:
         media_server:
         headscale_server:
 
-    schedule-restart:
+    schedule_restart:
       hosts:
         media_server:
