@@ -1,0 +1,8 @@
+services:
+  telegraf:
+    container_name: telegraf-apcupsd
+    image: telegraf:alpine
+    restart: unless-stopped
+    environment:
+      INFLUX_TOKEN: "${APCUPSD_INFLUX_TOKEN}"
+    command: "--config ${APCUPSD_INFLUX_CONFIG_URL}"

@@ -1,0 +1,18 @@
+services:
+  influxdb:
+    image: "influxdb:${INFLUX_VERSION}"
+    container_name: influxdb
+    restart: unless-stopped
+    volumes:
+      - "${INFLUX_HOME}/config:/etc/influxdb2"
+      - "${INFLUX_HOME}/data:/var/lib/influxdb2"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    labels:
+      traefik.enable: true
+      traefik.http.services.influx.loadbalancer.server.port: 8086
+      traefik.http.routers.influx.rule: Host(`${INFLUX_HOST}`)
+      traefik.http.routers.influx.entrypoints: https

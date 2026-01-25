@@ -1,0 +1,32 @@
+services:
+  grafana:
+    image: "grafana/grafana-oss:${GRAFANA_VERSION}"
+    container_name: grafana
+    restart: unless-stopped
+    user: "1100"
+    volumes:
+      - "${GRAFANA_HOME}:/var/lib/grafana"
+    environment:
+      GF_SERVER_DOMAIN: "${GRAFANA_HOST}"
+      GF_SERVER_ROOT_URL: "%(protocol)s://%(domain)s"
+      GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+      GF_AUTH_GENERIC_OAUTH_NAME: "authentik"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "${GRAFANA_AUTHENTIK_CLIENT_ID}"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "${GRAFANA_AUTHENTIK_CLIENT_SECRET}"
+      GF_AUTH_GENERIC_OAUTH_SCOPES: "openid profile email"
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://${GRAFANA_AUTHENTIK_HOST}/application/o/authorize/"
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://${GRAFANA_AUTHENTIK_HOST}/application/o/token/"
+      GF_AUTH_GENERIC_OAUTH_API_URL: "https://${GRAFANA_AUTHENTIK_HOST}/application/o/userinfo/"
+      GF_AUTH_SIGNOUT_REDIRECT_URL: "https://${GRAFANA_AUTHENTIK_HOST}/application/o/grafana/end-session/"
+      # Enable auto-login (bypasses Grafana login screen)
+      GF_AUTH_OAUTH_AUTO_LOGIN: "true"
+      # Allow email lookup (backwards compatibility)
+      GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP: "true"
+      # Map user groups to Grafana roles
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: |
+        contains(groups[*], '${GRAFANA_ADMIN_GROUP}') && 'Admin' || contains(groups[*], '${GRAFANA_EDITOR_GROUP}') && 'Editor' || 'Viewer'
+    labels:
+      traefik.enable: true
+      traefik.http.services.grafana.loadbalancer.server.port: 3000
+      traefik.http.routers.grafana.rule: Host(`${GRAFANA_HOST}`)
+      traefik.http.routers.grafana.entrypoints: https

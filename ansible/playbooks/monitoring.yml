@@ -1,8 +1,0 @@
-- name: Install applications
-  hosts: monitoring_server
-  roles:
-    - gotify
-    - uptime-kuma
-    - grafana
-    - speedtest-tracker
-    - telegraf-docker-apcupsd

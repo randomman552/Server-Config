@@ -1,0 +1,20 @@
+services:
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:${SPEEDTEST_TRACKER_VERSION}
+    restart: unless-stopped
+    container_name: speedtest-tracker
+    environment:
+      - PUID=${SPEEDTEST_TRACKER_PUID}
+      - PGID=${SPEEDTEST_TRACKER_GUID}
+      - APP_KEY=${SPEEDTEST_TRACKER_APP_KEY}
+      - DB_CONNECTION=sqlite
+      - SPEEDTEST_SCHEDULE=${SPEEDTEST_TRACKER_SCHEDULE}
+      - DISPLAY_TIMEZONE=${SPEEDTEST_TRACKER_TIMEZONE}
+    volumes:
+      - "${SPEEDTEST_TRACKER_HOME}/config:/config"
+    labels:
+      traefik.enable: true
+      traefik.http.services.speedtest-tracker.loadbalancer.server.port: 80
+      traefik.http.routers.speedtest-tracker.rule: Host(`${SPEEDTEST_TRACKER_HOST}`)
+      traefik.http.routers.speedtest-tracker.entrypoints: https
+      traefik.http.routers.speedtest-tracker.middlewares: local-whitelist@docker
