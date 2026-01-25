@@ -108,3 +108,7 @@ all:
         auth_server:
         media_server:
         headscale_server:
+
+    schedule-restart:
+      hosts:
+        media_server:

@@ -1,0 +1,126 @@
+services:
+  # Torrent
+  deluge:
+    image: linuxserver/deluge:latest
+    container_name: servarr-deluge
+    restart: unless-stopped
+    environment:
+      PUID: "${SERVARR_PUID}"
+      PGID: "${SERVARR_PGID}"
+      UMASK: "${SERVARR_UMASK}"
+      TZ: "${SERVARR_TIMEZONE}"
+      PASSWORD: "${SERVARR_DELUGE_PASSWORD}"
+    volumes:
+      - "${SERVARR_HOME}/deluge/config:/config"
+      - "${SERVARR_MEDIA_HOME}/downloads:/media/downloads"
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.deluge.loadbalancer.server.port: 8112
+      traefik.http.routers.deluge.rule: Host(`deluge.${SERVARR_HOST}`)
+      traefik.http.routers.deluge.entrypoints: https
+      traefik.http.routers.deluge.middlewares: local-whitelist
+
+  # Indexer manager
+  prowlarr:
+    image: linuxserver/prowlarr:nightly
+    container_name: servarr-prowlarr
+    restart: unless-stopped
+    environment:
+      PUID: "${SERVARR_PUID}"
+      PGID: "${SERVARR_PGID}"
+      UMASK: "${SERVARR_UMASK}"
+      TZ: "${SERVARR_TIMEZONE}"
+    volumes:
+      - "${SERVARR_HOME}/prowlarr/config:/config"
+      - "${SERVARR_MEDIA_HOME}:/media"
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.prowlarr.loadbalancer.server.port: 9696
+      traefik.http.routers.prowlarr.rule: Host(`prowlarr.${SERVARR_HOST}`)
+      traefik.http.routers.prowlarr.entrypoints: https
+      traefik.http.routers.prowlarr.middlewares: local-whitelist, authentik-forwardauth
+
+  # Shows
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: servarr-sonarr
+    restart: unless-stopped
+    environment:
+      PUID: "${SERVARR_PUID}"
+      PGID: "${SERVARR_PGID}"
+      UMASK: "${SERVARR_UMASK}"
+      TZ: "${SERVARR_TIMEZONE}"
+    volumes:
+      - "${SERVARR_HOME}/sonarr/config:/config"
+      - "${SERVARR_MEDIA_HOME}:/media"
+    depends_on:
+      - deluge
+      - prowlarr
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.sonarr.loadbalancer.server.port: 8989
+      traefik.http.routers.sonarr.rule: Host(`sonarr.${SERVARR_HOST}`)
+      traefik.http.routers.sonarr.entrypoints: https
+      traefik.http.routers.sonarr.middlewares: local-whitelist, authentik-forwardauth
+
+  # Movies
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: servarr-radarr
+    restart: unless-stopped
+    environment:
+      PUID: "${SERVARR_PUID}"
+      PGID: "${SERVARR_PGID}"
+      UMASK: "${SERVARR_UMASK}"
+      TZ: "${SERVARR_TIMEZONE}"
+    volumes:
+      - "${SERVARR_HOME}/radarr/config:/config"
+      - "${SERVARR_MEDIA_HOME}:/media"
+    depends_on:
+      - deluge
+      - prowlarr
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.radarr.loadbalancer.server.port: 7878
+      traefik.http.routers.radarr.rule: Host(`radarr.${SERVARR_HOST}`)
+      traefik.http.routers.radarr.entrypoints: https
+      traefik.http.routers.radarr.middlewares: local-whitelist, authentik-forwardauth
+
+  # Subtitles
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: servarr-bazarr
+    restart: unless-stopped
+    environment:
+      PUID: "${SERVARR_PUID}"
+      PGID: "${SERVARR_PGID}"
+      UMASK: "${SERVARR_UMASK}"
+      TZ: "${SERVARR_TIMEZONE}"
+    volumes:
+      - "${SERVARR_HOME}/bazarr/config:/config"
+      - "${SERVARR_MEDIA_HOME}:/media"
+    depends_on:
+      - radarr
+      - sonarr
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.bazarr.loadbalancer.server.port: 6767
+      traefik.http.routers.bazarr.rule: Host(`bazarr.${SERVARR_HOST}`)
+      traefik.http.routers.bazarr.entrypoints: https
+      traefik.http.routers.bazarr.middlewares: local-whitelist, authentik-forwardauth
+
+  # Content requests
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: servarr-jellyseerr
+    restart: unless-stopped
+    environment:
+      TZ: "${SERVARR_TIMEZONE}"
+    volumes:
+      - "${SERVARR_HOME}/jellyseerr/config:/app/config"
+    labels:
+      traefik.enable: "true"
+      traefik.http.services.jellyseerr.loadbalancer.server.port: 5055
+      traefik.http.routers.jellyseerr.rule: Host(`jellyseerr.${SERVARR_HOST}`)
+      traefik.http.routers.jellyseerr.entrypoints: https
+      traefik.http.routers.jellyseerr.middlewares: local-whitelist

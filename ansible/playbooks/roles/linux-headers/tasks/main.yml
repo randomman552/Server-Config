@@ -1,0 +1,5 @@
+- name: Install linux headers
+  become: true
+  ansible.builtin.apt:
+    pkg: linux-headers-generic
+    state: present

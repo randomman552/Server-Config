@@ -8,6 +8,11 @@
   roles:
     - common
 
+- name: Restart schedule
+  hosts: schedule-restart
+  roles:
+    - schedule-restart
+
 - name: Docker
   hosts: docker
   roles:
