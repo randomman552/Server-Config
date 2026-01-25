@@ -1,0 +1,65 @@
+services:
+  # Gitea
+  server:
+    image: gitea/gitea:latest-rootless
+    restart: unless-stopped
+    environment:
+      GITEA__DATABASE__DB_TYPE: postgres
+      GITEA__DATABASE__HOST: postgres:5432
+      GITEA__DATABASE__NAME: "${GITEA_POSTGRES_DATABASE}"
+      GITEA__DATABASE__USER: "${GITEA_POSTGRES_USERNAME}"
+      GITEA__DATABASE__PASSWD: "${GITEA_POSTGRES_PASSWORD}"
+      GITEA__SERVICE__DISABLE_REGISTRATION: true
+      GITEA__MAILER__ENABLED: true
+      GITEA__MAILER__SMTP_ADDR: "${GITEA_SMTP_HOST}"
+      GITEA__MAILER__SMTP_PORT: "${GITEA_SMTP_PORT}"
+      GITEA__MAILER__FROM: "${GITEA_SMTP_FROM}"
+      GITEA__MAILER__PROTOCOL: "${GITEA_SMTP_PROTOCOL}"
+      GITEA__MAILER__USER: "${GITEA_SMTP_USERNAME}"
+      GITEA__MAILER__PASSWD: "${GITEA_SMTP_PASSWORD}"
+      GITEA__OPENID__ENABLE_OPENID_SIGNUP: false
+      GITEA__OPENID__ENABLE_OPENID_SIGNIN: false
+    volumes:
+      - "${GITEA_HOME}/data:/var/lib/gitea"
+      - "${GITEA_HOME}/config:/etc/gitea"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "2222:2222"
+    labels:
+      traefik.enable: true
+      traefik.http.services.gitea.loadbalancer.server.port: 3000
+      traefik.http.routers.gitea.rule: Host(`${GITEA_HOST}`)
+      traefik.http.routers.gitea.entrypoints: https
+
+  # Database
+  postgres:
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${GITEA_POSTGRES_USERNAME}"
+      POSTGRES_PASSWORD: "${GITEA_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${GITEA_POSTGRES_DATABASE}"
+    volumes:
+      - "${GITEA_HOME}/db:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "$$POSTGRES_DB"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+
+  # Periodic database backups
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:alpine
+    restart: unless-stopped
+    user: postgres:postgres
+    environment:
+      POSTGRES_USER: "${GITEA_POSTGRES_USERNAME}"
+      POSTGRES_PASSWORD: "${GITEA_POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${GITEA_POSTGRES_DATABASE}"
+      POSTGRES_HOST: postgres
+    volumes:
+      - "${GITEA_HOME}/backups:/backups"
+    depends_on:
+      - postgres

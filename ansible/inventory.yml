@@ -1,4 +1,3 @@
-
 all:
   hosts:
     local:
@@ -82,6 +81,7 @@ all:
         backup_server:
         gateway_server:
         headscale_server:
+        git_server:
 
     # Watchtower docker updates
     watchtower:
