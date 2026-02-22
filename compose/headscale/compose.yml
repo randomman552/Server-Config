@@ -1,4 +1,5 @@
 services:
+  # Headscale server
   headscale:
     image: docker.io/headscale/headscale:$HEADSCALE_VERSION
     restart: unless-stopped
@@ -16,3 +17,18 @@ services:
       traefik.http.routers.headscale.service: headscale
       traefik.http.routers.headscale.rule: Host(`${HEADSCALE_HOST}`)
       traefik.http.routers.headscale.entrypoints: https
+  
+  # Admin UI
+  headplane:
+    image: ghcr.io/tale/headplane:latest
+    container_name: headplane
+    restart: unless-stopped
+    volumes:
+      - '${HEADPLANE_HOME}/config.yaml:/etc/headplane/config.yaml'
+      - '${HEADPLANE_HOME}/storage:/var/lib/headplane'
+      - '${HEADSCALE_HOME}/config:/etc/headscale'
+    labels:
+      traefik.enable: true
+      traefik.http.services.headplane.loadbalancer.server.port: 3000
+      traefik.http.routers.headplane.rule: Host(`${HEADSCALE_HOST}`) && PathPrefix(`/admin`)
+      traefik.http.routers.headplane.entrypoints: https
