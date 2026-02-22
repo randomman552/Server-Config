@@ -1,0 +1,18 @@
+services:
+  headscale:
+    image: docker.io/headscale/headscale:$HEADSCALE_VERSION
+    restart: unless-stopped
+    container_name: headscale
+    volumes:
+      - ${HEADSCALE_HOME}/config:/etc/headscale
+      - ${HEADSCALE_HOME}/lib:/var/lib/headscale
+      - ${HEADSCALE_HOME}/run:/var/run/headscale
+    command: serve
+    healthcheck:
+      test: ["CMD", "headscale", "health"]
+    labels:
+      traefik.enable: true
+      traefik.http.services.headscale.loadbalancer.server.port: 8080
+      traefik.http.routers.headscale.service: headscale
+      traefik.http.routers.headscale.rule: Host(`${HEADSCALE_HOST}`)
+      traefik.http.routers.headscale.entrypoints: https
