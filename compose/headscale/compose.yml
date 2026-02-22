@@ -23,6 +23,9 @@ services:
     image: ghcr.io/tale/headplane:latest
     container_name: headplane
     restart: unless-stopped
+    depends_on:
+      headscale:
+        condition: service_healthy
     volumes:
       - '${HEADPLANE_HOME}/config.yaml:/etc/headplane/config.yaml'
       - '${HEADPLANE_HOME}/storage:/var/lib/headplane'
