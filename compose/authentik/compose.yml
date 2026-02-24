@@ -30,6 +30,7 @@ services:
       - "${AUTHENTIK_HOME}/backups:/backups"
     depends_on:
       - postgres
+  
   # Redis cache
   redis:
     image: docker.io/library/redis:alpine
@@ -52,8 +53,6 @@ services:
     depends_on:
       - postgres
       - redis
-    ports:
-      - 9000:9000
     environment:
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
       AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}}"
@@ -120,15 +119,32 @@ services:
       AUTHENTIK_EMAIL__PASSWORD: "${AUTHENTIL_EMAIL_PASSWORD}"
       AUTHENTIK_EMAIL__FROM: "${AUTHENTIK_EMAIL_FROM}"
       AUTHENTIK_EMAIL__USE_TLS: true
-    # `user: root` and the docker socket volume are optional.
-    # See more for the docker socket integration here:
-    # https://goauthentik.io/docs/outposts/integrations/docker
-    # Removing `user: root` also prevents the worker from fixing the permissions
-    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
-    # (1000:1000 by default)
-    user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - "${AUTHENTIK_HOME}/data:/data"
       - "${AUTHENTIK_CERTS_DIRECTORY}:/certs"
       - "${AUTHENTIK_HOME}/custom-templates:/templates"
+  
+  # Proxy Outpost
+  outpost-proxy:
+    image: ghcr.io/goauthentik/proxy:${AUTHENTIK_VERSION}
+    ports:
+      - 9000:9000
+      - 9443:9443
+    environment:
+      AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
+      AUTHENTIK_INSECURE: false
+      AUTHENTIK_TOKEN: ${AUTHENTIK_PROXY_OUTPOST_TOKEN}
+
+  # LDAP Outpost
+  outpost-ldap:
+    image: "ghcr.io/goauthentik/ldap:${AUTHENTIK_VERSION}"
+    depends_on:
+      - server
+    ports:
+      - 389:3389
+      - 636:6636
+    environment:
+      AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
+      AUTHENTIK_INSECURE: false
+      AUTHENTIK_TOKEN: ${AUTHENTIK_LDAP_OUTPOST_TOKEN}
