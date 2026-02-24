@@ -128,6 +128,8 @@ services:
   # Proxy Outpost
   outpost-proxy:
     image: ghcr.io/goauthentik/proxy:${AUTHENTIK_VERSION}
+    depends_on:
+      - server
     ports:
       - 9000:9000
       - 9443:9443
