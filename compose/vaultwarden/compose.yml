@@ -4,6 +4,8 @@ services:
     image: vaultwarden/server:latest
     container_name: vaultwarden
     restart: unless-stopped
+    networks:
+      - traefik
     environment:
       TZ: $TZ
       WEBSOCKET_ENABLED: true  # WebSocket notifications.
@@ -46,3 +48,8 @@ services:
       homepage.icon: vaultwarden
       homepage.description: Password manager
       homepage.href: https://$VAULTWARDEN_HOST
+
+networks:
+  traefik:
+    name: traefik
+    external: true

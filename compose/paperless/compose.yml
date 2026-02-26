@@ -4,6 +4,8 @@ services:
   redis:
     image: redis:7
     restart: unless-stopped
+    networks:
+      - internal
     healthcheck:
       test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
       start_period: 20s
@@ -17,6 +19,8 @@ services:
   postgres:
     image: postgres:15
     restart: unless-stopped
+    networks:
+      - internal
     healthcheck:
       test:
         [
@@ -39,6 +43,8 @@ services:
     image: prodrigestivill/postgres-backup-local:alpine
     restart: unless-stopped
     user: postgres:postgres
+    networks:
+      - internal
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_USER: $PAPERLESS_DB_USER
@@ -54,6 +60,9 @@ services:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
     user: ${PAPERLESS_UID:-1000}:${PAPERLESS_GID:-1000}
     restart: unless-stopped
+    networks:
+      - traefik
+      - internal
     depends_on:
       - postgres
       - redis
@@ -94,7 +103,14 @@ services:
         }
     labels:
       traefik.enable: true
+      traefik.docker.network: traefik
       traefik.http.services.paperless.loadbalancer.server.port: 8000
       traefik.http.routers.paperless.rule: Host(`$PAPERLESS_HOST`)
       traefik.http.routers.paperless.entrypoints: https
       traefik.http.routers.paperless.middlewares: local-whitelist
+
+networks:
+  traefik:
+    name: traefik
+    external: true
+  internal:

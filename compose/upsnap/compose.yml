@@ -7,10 +7,6 @@ services:
     volumes:
       - ${UPSNAP_HOME}/data:/app/pb_data
     environment:
-       TZ: $UPSNAP_TZ
-    labels:
-      traefik.enable: true
-      traefik.http.services.upsnap.loadbalancer.server.port: 8090
-      traefik.http.routers.upsnap.rule: Host(`$UPSNAP_HOST`)
-      traefik.http.routers.upsnap.entrypoints: https
-      traefik.http.routers.upsnap.middlewares: local-whitelist
+      TZ: $UPSNAP_TZ
+    ports:
+      - 8090:8090

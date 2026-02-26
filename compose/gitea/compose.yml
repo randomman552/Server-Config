@@ -19,6 +19,9 @@ services:
       GITEA__MAILER__PASSWD: "${GITEA_SMTP_PASSWORD}"
       GITEA__OPENID__ENABLE_OPENID_SIGNUP: false
       GITEA__OPENID__ENABLE_OPENID_SIGNIN: false
+    networks:
+      - internal
+      - traefik
     volumes:
       - "${GITEA_HOME}/data:/var/lib/gitea"
       - "${GITEA_HOME}/config:/etc/gitea"
@@ -28,6 +31,7 @@ services:
       - "2222:2222"
     labels:
       traefik.enable: true
+      traefik.docker.network: traefik
       traefik.http.services.gitea.loadbalancer.server.port: 3000
       traefik.http.routers.gitea.rule: Host(`${GITEA_HOST}`)
       traefik.http.routers.gitea.entrypoints: https
@@ -40,6 +44,8 @@ services:
       POSTGRES_USER: "${GITEA_POSTGRES_USERNAME}"
       POSTGRES_PASSWORD: "${GITEA_POSTGRES_PASSWORD}"
       POSTGRES_DB: "${GITEA_POSTGRES_DATABASE}"
+    networks:
+      - internal
     volumes:
       - "${GITEA_HOME}/db:/var/lib/postgresql/data"
     healthcheck:
@@ -59,7 +65,15 @@ services:
       POSTGRES_PASSWORD: "${GITEA_POSTGRES_PASSWORD}"
       POSTGRES_DB: "${GITEA_POSTGRES_DATABASE}"
       POSTGRES_HOST: postgres
+    networks:
+      - internal
     volumes:
       - "${GITEA_HOME}/backups:/backups"
     depends_on:
       - postgres
+
+networks:
+  traefik:
+    name: traefik
+    external: true
+  internal:

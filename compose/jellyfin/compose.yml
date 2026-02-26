@@ -4,6 +4,9 @@ services:
     image: jellyfin/jellyfin
     user: "${JELLYFIN_PUID}:${JELLYFIN_PGID}"
     hostname: Jellyfin
+    networks:
+      - traefik
+      - internal
     environment:
       NVIDIA_DRIVER_CAPABILITIES: all
     volumes:
@@ -20,6 +23,7 @@ services:
               capabilities: [gpu]
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik
       # Middleware
       traefik.http.middlewares.jellyfin-security.headers.customresponseheaders.X-Robots-Tag: noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex
       traefik.http.middlewares.jellyfin-security.headers.SSLRedirect: "true"
@@ -41,6 +45,8 @@ services:
   jellyfin-exporter:
     image: randomman552/jellyfin-prometheus-exporter
     restart: unless-stopped
+    networks:
+      - traefik
     environment:
       JELLYFIN_URL: "https://${JELLYFIN_HOST}"
       JELLYFIN_API_KEY: "${JELLYFIN_EXPORTER_TOKEN}"
@@ -60,7 +66,15 @@ services:
     expose:
       - 3389
       - 6636
+    networks:
+      - internal
     environment:
       AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
       AUTHENTIK_INSECURE: false
       AUTHENTIK_TOKEN: ${AUTHENTIK_LDAP_OUTPOST_TOKEN}
+
+networks:
+  traefik:
+    name: traefik
+    external: true
+  internal:

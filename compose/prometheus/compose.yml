@@ -3,6 +3,8 @@ services:
     container_name: prometheus
     image: prom/prometheus:latest
     restart: unless-stopped
+    networks:
+      - traefik
     volumes:
       - "${PROMETHEUS_HOME}/prometheus.yml:/etc/prometheus/prometheus.yml"
       - "${PROMETHEUS_HOME}/data:/prometheus"
@@ -17,3 +19,8 @@ services:
       traefik.http.services.prometheus.loadbalancer.server.port: 9090
       traefik.http.routers.prometheus.rule: Host(`${PROMETHEUS_HOST}`)
       traefik.http.routers.prometheus.entrypoints: https
+
+networks:
+  traefik:
+    name: traefik
+    external: true

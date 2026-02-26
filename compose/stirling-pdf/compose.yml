@@ -3,6 +3,8 @@ services:
   server:
     image: frooodle/s-pdf:latest
     restart: unless-stopped
+    networks:
+      - traefik
     environment:
       DOCKER_ENABLE_SECURITY: false
       INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
@@ -13,4 +15,26 @@ services:
       traefik.http.services.stirling-pdf.loadbalancer.server.port: 8080
       traefik.http.routers.stirling-pdf.rule: Host(`${STIRLING_HOST}`)
       traefik.http.routers.stirling-pdf.entrypoints: https
-      traefik.http.routers.stirling-pdf.middlewares: authentik-forwardauth
+      traefik.http.routers.stirling-pdf.middlewares: stirling-forwardauth
+      # Authentik forward-auth middleware
+      traefik.http.middlewares.stirling-forwardauth.forwardauth.address: http://stirling-authentik-proxy:9000/outpost.goauthentik.io/auth/traefik
+      traefik.http.middlewares.stirling-forwardauth.forwardauth.trustForwardHeader: "true"
+      traefik.http.middlewares.stirling-forwardauth.forwardauth.authResponseHeaders: |
+        X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version
+
+  stirling-authentik-proxy:
+    image: ghcr.io/goauthentik/proxy:${AUTHENTIK_VERSION}
+    expose:
+      - 9000
+      - 9443
+    networks:
+      - traefik
+    environment:
+      AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
+      AUTHENTIK_INSECURE: false
+      AUTHENTIK_TOKEN: ${AUTHENTIK_PROXY_OUTPOST_TOKEN}
+
+networks:
+  traefik:
+    name: traefik
+    external: true

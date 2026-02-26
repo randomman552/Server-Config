@@ -4,6 +4,8 @@ services:
     container_name: grafana
     restart: unless-stopped
     user: "1100"
+    networks:
+      - traefik
     volumes:
       - "${GRAFANA_HOME}:/var/lib/grafana"
     environment:
@@ -30,3 +32,8 @@ services:
       traefik.http.services.grafana.loadbalancer.server.port: 3000
       traefik.http.routers.grafana.rule: Host(`${GRAFANA_HOST}`)
       traefik.http.routers.grafana.entrypoints: https
+    
+networks:
+  traefik:
+    name: traefik
+    external: true

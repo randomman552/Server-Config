@@ -4,6 +4,8 @@ services:
     image: docker.io/headscale/headscale:$HEADSCALE_VERSION
     restart: unless-stopped
     container_name: headscale
+    networks:
+      - traefik
     volumes:
       - ${HEADSCALE_HOME}/config:/etc/headscale
       - ${HEADSCALE_HOME}/lib:/var/lib/headscale
@@ -26,6 +28,8 @@ services:
     depends_on:
       headscale:
         condition: service_healthy
+    networks:
+      - traefik
     volumes:
       - '${HEADPLANE_HOME}/config.yaml:/etc/headplane/config.yaml'
       - '${HEADPLANE_HOME}/storage:/var/lib/headplane'
@@ -35,3 +39,8 @@ services:
       traefik.http.services.headplane.loadbalancer.server.port: 3000
       traefik.http.routers.headplane.rule: Host(`${HEADSCALE_HOST}`) && PathPrefix(`/admin`)
       traefik.http.routers.headplane.entrypoints: https
+
+networks:
+  traefik:
+    name: traefik
+    external: true

@@ -4,6 +4,9 @@ services:
     image: linuxserver/deluge:latest
     container_name: servarr-deluge
     restart: unless-stopped
+    networks:
+      - traefik
+      - internal
     environment:
       PUID: "${SERVARR_PUID}"
       PGID: "${SERVARR_PGID}"
@@ -15,6 +18,7 @@ services:
       - "${SERVARR_MEDIA_HOME}/downloads:/media/downloads"
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik
       traefik.http.services.deluge.loadbalancer.server.port: 8112
       traefik.http.routers.deluge.rule: Host(`deluge.${SERVARR_HOST}`)
       traefik.http.routers.deluge.entrypoints: https
@@ -25,6 +29,9 @@ services:
     image: linuxserver/prowlarr:nightly
     container_name: servarr-prowlarr
     restart: unless-stopped
+    networks:
+      - traefik
+      - internal
     environment:
       PUID: "${SERVARR_PUID}"
       PGID: "${SERVARR_PGID}"
@@ -35,16 +42,25 @@ services:
       - "${SERVARR_MEDIA_HOME}:/media"
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik
       traefik.http.services.prowlarr.loadbalancer.server.port: 9696
       traefik.http.routers.prowlarr.rule: Host(`prowlarr.${SERVARR_HOST}`)
       traefik.http.routers.prowlarr.entrypoints: https
-      traefik.http.routers.prowlarr.middlewares: local-whitelist, authentik-forwardauth
+      traefik.http.routers.prowlarr.middlewares: local-whitelist, servarr-forwardauth
+      # Authentik forward-auth middleware
+      traefik.http.middlewares.servarr-forwardauth.forwardauth.address: http://servarr-authentik-proxy:9000/outpost.goauthentik.io/auth/traefik
+      traefik.http.middlewares.servarr-forwardauth.forwardauth.trustForwardHeader: "true"
+      traefik.http.middlewares.servarr-forwardauth.forwardauth.authResponseHeaders: |
+        X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version
 
   # Shows
   sonarr:
     image: linuxserver/sonarr:latest
     container_name: servarr-sonarr
     restart: unless-stopped
+    networks:
+      - traefik
+      - internal
     environment:
       PUID: "${SERVARR_PUID}"
       PGID: "${SERVARR_PGID}"
@@ -58,16 +74,20 @@ services:
       - prowlarr
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik
       traefik.http.services.sonarr.loadbalancer.server.port: 8989
       traefik.http.routers.sonarr.rule: Host(`sonarr.${SERVARR_HOST}`)
       traefik.http.routers.sonarr.entrypoints: https
-      traefik.http.routers.sonarr.middlewares: local-whitelist, authentik-forwardauth
+      traefik.http.routers.sonarr.middlewares: local-whitelist, servarr-forwardauth
 
   # Movies
   radarr:
     image: linuxserver/radarr:latest
     container_name: servarr-radarr
     restart: unless-stopped
+    networks:
+      - traefik
+      - internal
     environment:
       PUID: "${SERVARR_PUID}"
       PGID: "${SERVARR_PGID}"
@@ -81,16 +101,20 @@ services:
       - prowlarr
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik
       traefik.http.services.radarr.loadbalancer.server.port: 7878
       traefik.http.routers.radarr.rule: Host(`radarr.${SERVARR_HOST}`)
       traefik.http.routers.radarr.entrypoints: https
-      traefik.http.routers.radarr.middlewares: local-whitelist, authentik-forwardauth
+      traefik.http.routers.radarr.middlewares: local-whitelist, servarr-forwardauth
 
   # Subtitles
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     container_name: servarr-bazarr
     restart: unless-stopped
+    networks:
+      - traefik
+      - internal
     environment:
       PUID: "${SERVARR_PUID}"
       PGID: "${SERVARR_PGID}"
@@ -104,16 +128,19 @@ services:
       - sonarr
     labels:
       traefik.enable: "true"
+      traefik.docker.network: traefik
       traefik.http.services.bazarr.loadbalancer.server.port: 6767
       traefik.http.routers.bazarr.rule: Host(`bazarr.${SERVARR_HOST}`)
       traefik.http.routers.bazarr.entrypoints: https
-      traefik.http.routers.bazarr.middlewares: local-whitelist, authentik-forwardauth
+      traefik.http.routers.bazarr.middlewares: local-whitelist, servarr-forwardauth
 
   # Content requests
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
     container_name: servarr-jellyseerr
     restart: unless-stopped
+    networks:
+      - traefik
     environment:
       TZ: "${SERVARR_TIMEZONE}"
     volumes:
@@ -124,3 +151,22 @@ services:
       traefik.http.routers.jellyseerr.rule: Host(`jellyseerr.${SERVARR_HOST}`)
       traefik.http.routers.jellyseerr.entrypoints: https
       traefik.http.routers.jellyseerr.middlewares: local-whitelist
+
+  # Authentication
+  servarr-authentik-proxy:
+    image: ghcr.io/goauthentik/proxy:${AUTHENTIK_VERSION}
+    expose:
+      - 9000
+      - 9443
+    networks:
+      - traefik
+    environment:
+      AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
+      AUTHENTIK_INSECURE: false
+      AUTHENTIK_TOKEN: ${AUTHENTIK_PROXY_OUTPOST_TOKEN}
+
+networks:
+  traefik:
+    name: traefik
+    external: true
+  internal:

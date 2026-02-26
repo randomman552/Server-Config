@@ -9,6 +9,8 @@ services:
       interval: 30s
       retries: 5
       timeout: 5s
+    networks:
+      - internal
     volumes:
       - "${AUTHENTIK_HOME}/postgres_17:/var/lib/postgresql/data"
     environment:
@@ -26,6 +28,8 @@ services:
       POSTGRES_USER: "${AUTHENTIK_POSTGRES_USERNAME}"
       POSTGRES_PASSWORD: "${AUTHENTIK_POSTGRES_PASSWORD}"
       POSTGRES_DB: "${AUTHENTIK_POSTGRES_SCHEMA}"
+    networks:
+      - internal
     volumes:
       - "${AUTHENTIK_HOME}/backups:/backups"
     depends_on:
@@ -42,6 +46,8 @@ services:
       interval: 30s
       retries: 5
       timeout: 3s
+    networks:
+      - internal
     volumes:
       - "${AUTHENTIK_HOME}/redis:/data"
       
@@ -53,6 +59,9 @@ services:
     depends_on:
       - postgres
       - redis
+    networks:
+      - traefik
+      - internal
     environment:
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
       AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}}"
@@ -75,6 +84,7 @@ services:
       - "${AUTHENTIK_HOME}/custom-templates:/templates"
     labels:
       traefik.enable: true
+      traefik.docker.network: traefik
       # Normal server traffic
       traefik.http.services.authentik.loadbalancer.server.port: 9000
       traefik.http.routers.authentik.rule: Host(`${AUTHENTIK_HOST}`)
@@ -102,6 +112,8 @@ services:
       - postgres
       - redis
       - server
+    networks:
+      - internal
     environment:
       AUTHENTIK_ERROR_REPORTING__ENABLED: true
       AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}}"
@@ -124,29 +136,9 @@ services:
       - "${AUTHENTIK_HOME}/data:/data"
       - "${AUTHENTIK_CERTS_DIRECTORY}:/certs"
       - "${AUTHENTIK_HOME}/custom-templates:/templates"
-  
-  # Proxy Outpost
-  outpost-proxy:
-    image: ghcr.io/goauthentik/proxy:${AUTHENTIK_VERSION}
-    depends_on:
-      - server
-    ports:
-      - 9000:9000
-      - 9443:9443
-    environment:
-      AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
-      AUTHENTIK_INSECURE: false
-      AUTHENTIK_TOKEN: ${AUTHENTIK_PROXY_OUTPOST_TOKEN}
 
-  # LDAP Outpost
-  outpost-ldap:
-    image: "ghcr.io/goauthentik/ldap:${AUTHENTIK_VERSION}"
-    depends_on:
-      - server
-    ports:
-      - 389:3389
-      - 636:6636
-    environment:
-      AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
-      AUTHENTIK_INSECURE: false
-      AUTHENTIK_TOKEN: ${AUTHENTIK_LDAP_OUTPOST_TOKEN}
+networks:
+  traefik:
+    name: traefik
+    external: true
+  internal:
