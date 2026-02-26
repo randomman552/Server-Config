@@ -62,7 +62,17 @@ all:
     # Systems using docker
     docker:
       hosts:
+        game_server:
+        monitoring_server:
+        backup_server:
         ci_runner_server:
+        portainer_server:
+        gateway_server:
+        git_server:
+        auth_server:
+        media_server:
+        document_server:
+        headscale_server:
 
     # Portainer agent
     portainer_agent:

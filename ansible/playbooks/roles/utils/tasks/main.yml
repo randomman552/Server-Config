@@ -7,3 +7,4 @@
       - htop
       - btop
       - dnsutils
+      - cron

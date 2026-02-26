@@ -1,4 +1,3 @@
-# Add the docker repository
 - name: Add docker repository
   become: true
   ansible.builtin.deb822_repository:
@@ -14,7 +13,6 @@
     uris:
       - https://download.docker.com/linux/debian
 
-# Install docker
 - name: Install docker
   become: true
   ansible.builtin.apt:
@@ -34,3 +32,11 @@
     dest: /etc/docker/daemon.json
   notify:
     - Restart docker
+
+- name: Configure automatic image pruning
+  become: true
+  ansible.builtin.cron:
+    special_time: daily
+    name: scheduled-image-prune
+    user: root
+    job: docker image prune -af
