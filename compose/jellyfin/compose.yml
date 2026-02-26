@@ -1,4 +1,5 @@
 services:
+  # Jellyfin
   jellyfin:
     image: jellyfin/jellyfin
     user: "${JELLYFIN_PUID}:${JELLYFIN_PGID}"
@@ -36,6 +37,7 @@ services:
       traefik.http.routers.jellyfin.entrypoints: https
       traefik.http.routers.jellyfin.middlewares: jellyfin-security, local-whitelist
 
+  # Metrics exporter
   jellyfin-exporter:
     image: randomman552/jellyfin-prometheus-exporter
     restart: unless-stopped
@@ -51,3 +53,14 @@ services:
       traefik.http.routers.jellyfin-metrics.rule: Host(`${JELLYFIN_HOST}`) && PathPrefix(`/metrics`)
       traefik.http.routers.jellyfin-metrics.entrypoints: https
       traefik.http.routers.jellyfin-metrics.middlewares: jellyfin-security, local-whitelist
+
+  # Authentik LDAP outpost
+  ldap:
+    image: "ghcr.io/goauthentik/ldap:${AUTHENTIK_VERSION}"
+    expose:
+      - 3389
+      - 6636
+    environment:
+      AUTHENTIK_HOST: https://${AUTHENTIK_HOST}
+      AUTHENTIK_INSECURE: false
+      AUTHENTIK_TOKEN: ${AUTHENTIK_LDAP_OUTPOST_TOKEN}
