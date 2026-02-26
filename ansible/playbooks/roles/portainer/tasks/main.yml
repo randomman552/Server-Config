@@ -5,6 +5,8 @@
     pull: always
     restart_policy: always
     image: portainer/portainer-ce:latest
+    networks:
+      - name: traefik
     security_opts:
       - no-new-privileges:true
     volumes:

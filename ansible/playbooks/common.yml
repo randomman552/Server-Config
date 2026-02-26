@@ -32,6 +32,11 @@
   roles:
     - traefik
 
+- name: Portainer
+  hosts: portainer
+  roles:
+    - portainer
+
 - name: Watchtower
   hosts: watchtower
   roles:
