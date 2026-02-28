@@ -155,6 +155,7 @@ services:
   # Authentication
   servarr-authentik-proxy:
     image: ghcr.io/goauthentik/proxy:${AUTHENTIK_VERSION}
+    restart: unless-stopped
     expose:
       - 9000
       - 9443

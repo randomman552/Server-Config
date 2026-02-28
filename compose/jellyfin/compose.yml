@@ -63,6 +63,7 @@ services:
   # Authentik LDAP outpost
   ldap:
     image: "ghcr.io/goauthentik/ldap:${AUTHENTIK_VERSION}"
+    restart: unless-stopped
     expose:
       - 3389
       - 6636
