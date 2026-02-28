@@ -3,6 +3,8 @@ services:
   scheduler:
     image: randomman552/rclone-scheduler
     restart: unless-stopped
+    networks:
+      - internal
     depends_on:
       server:
         condition: service_started
@@ -21,6 +23,9 @@ services:
   server:
     image: rclone/rclone
     restart: unless-stopped
+    networks:
+      - internal
+      - traefik
     environment:
       # Create Backblaze B2 config
       RCLONE_CONFIG_B2_ACCOUNT: $B2_ACCOUNT
@@ -38,7 +43,14 @@ services:
     labels:
       # Traefik routing
       traefik.enable: true
+      traefik.docker.network: traefik
       traefik.http.services.rclone.loadbalancer.server.port: $RCLONE_PORT
       traefik.http.routers.rclone.rule: Host(`${RCLONE_HOST}`) && Path(`/metrics`)
       traefik.http.routers.rclone.entrypoints: https
       traefik.http.routers.rclone.middlewares: local-whitelist
+
+networks:
+  traefik:
+    name: traefik
+    external: true
+  internal:
