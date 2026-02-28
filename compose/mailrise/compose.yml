@@ -1,0 +1,9 @@
+services:
+  mailrise:
+    image: yoryan/mailrise
+    container_name: mailrise
+    restart: unless-stopped
+    ports:
+      - 8025:8025
+    volumes:
+      - ${MAILRISE_HOME}/mailrise.conf:/etc/mailrise.conf:ro

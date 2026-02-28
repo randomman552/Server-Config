@@ -1,0 +1,24 @@
+- name: Configure Postfix
+  become: true
+  ansible.builtin.debconf:
+    name: postfix
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  with_items:
+    - question: postfix/main_mailer_type
+      value: "Internet Site"
+      vtype: "string"
+    - question: "postfix/mailname"
+      value: "{{ ansible_host }}"
+      vtype: "string"
+    - question: "postfix/relayhost"
+      value: "{{ postfix_relayhost }}"
+      vtype: "string"
+
+- name: Install Postfix
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+    name: postfix
+    state: present

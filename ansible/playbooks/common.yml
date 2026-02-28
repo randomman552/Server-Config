@@ -10,7 +10,14 @@
     - rsync
     - sshd
     - utils
+
+- name: Unattended upgrades
+  hosts:
+    - vms
+    - lxcs
+  roles:
     - unattended-upgrades
+    - postfix
 
 - name: Restart schedule
   hosts: schedule_restart

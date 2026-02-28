@@ -1,12 +1,15 @@
 all:
   hosts:
-    local:
-      ansible_host: localhost
-    media_server:
-      ansible_host: media.ggrainger.uk
-      ansible_user: ansible
+    config_server:
+      ansible_host: config.ggrainger.uk
     hypervisor_server:
       ansible_host: pve.ggrainger.uk
+      ansible_user: ansible
+    backup_server:
+      ansible_host: pbs.ggrainger.uk
+      ansible_user: ansible
+    media_server:
+      ansible_host: media.ggrainger.uk
       ansible_user: ansible
     game_server:
       ansible_host: gameserver.ggrainger.uk
@@ -22,9 +25,6 @@ all:
       ansible_user: ansible
     ci_runner_server:
       ansible_host: ci-runner.ggrainger.uk
-      ansible_user: ansible
-    backup_server:
-      ansible_host: pbs.ggrainger.uk
       ansible_user: ansible
     gateway_server:
       ansible_host: gateway.ggrainger.uk
@@ -43,7 +43,7 @@ all:
     # LXC containers
     lxcs:
       hosts:
-        local:
+        config_server:
 
     # QEMU VMs
     vms:
@@ -113,6 +113,7 @@ all:
         media_server:
         headscale_server:
 
+    # Hosts running portainer
     portainer:
       hosts:
         portainer_server:

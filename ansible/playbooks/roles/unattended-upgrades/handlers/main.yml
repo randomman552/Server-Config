@@ -1,0 +1,5 @@
+- name: Restart unattended-upgrades
+  become: true
+  ansible.builtin.service:
+    state: restarted
+    name: unattended-upgrades
