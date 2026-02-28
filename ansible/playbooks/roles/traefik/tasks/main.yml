@@ -45,6 +45,8 @@
       TZ: "{{ traefik_timezone }}"
       CLOUDFLARE_EMAIL: "{{ traefik_cloudflare_email }}"
       CLOUDFLARE_DNS_API_TOKEN: "{{ traefik_cloudflare_dns_api_token }}"
+    security_opts:
+      - apparmor:unconfined
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - "{{ traefik_home }}/etc:/etc/traefik"
