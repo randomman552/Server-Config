@@ -1,7 +1,7 @@
 version: '3'
 services:
   garrysmod:
-    image: randomman552/gmod
+    image: ghcr.io/randomman552/gmod-docker
     container_name: gmod
     user: ${GMOD_UID:-1600}:${GMOD_PID:-1600}
     tty: true

@@ -43,7 +43,7 @@ services:
 
   # Metrics exporter
   jellyfin-exporter:
-    image: randomman552/jellyfin-prometheus-exporter
+    image: ghcr.io/randomman552/jellyfin-prometheus-exporter
     restart: unless-stopped
     networks:
       - traefik

@@ -73,7 +73,7 @@ services:
 
   # Application
   app:
-    image: randomman552/nextcloud-ffmpeg:stable-fpm
+    image: ghcr.io/randomman552/nextcloud-docker-ffmpeg:32-fpm
     restart: unless-stopped
     networks:
       - internal
@@ -92,7 +92,7 @@ services:
 
   # Cron to execute periodic tasks on nextcloud
   cron:
-    image: randomman552/nextcloud-ffmpeg:stable-fpm
+    image: ghcr.io/randomman552/nextcloud-docker-ffmpeg:32-fpm
     restart: unless-stopped
     entrypoint: /cron.sh
     networks:

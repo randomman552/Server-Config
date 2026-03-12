@@ -1,7 +1,7 @@
 version: '3'
 services:
   barotrauma:
-    image: randomman552/barotrauma:latest
+    image: ghcr.io/randomman552/barotrauma-docker:latest
     container_name: barotrauma
     restart: unless-stopped
     ports:
